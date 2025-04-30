@@ -13,6 +13,8 @@ namespace Eshava.Core.Linq.Extensions
 	{
 		private static readonly Dictionary<CompareOperator, Func<MemberExpression, ConstantExpression, WhereQueryEngineOptions, Expression>> _compareOperatorExpressions = new()
 		{
+			{ CompareOperator.IsNull, GetEqualExpression },
+			{ CompareOperator.IsNotNull, GetNotEqualExpression },
 			{ CompareOperator.Equal, GetEqualExpression },
 			{ CompareOperator.NotEqual, GetNotEqualExpression },
 			{ CompareOperator.GreaterThan, GetGreaterThanExpression },
@@ -23,7 +25,17 @@ namespace Eshava.Core.Linq.Extensions
 			{ CompareOperator.ContainsNot, GetContainsNotExpression },
 			{ CompareOperator.StartsWith, GetStartsWithExpression },
 			{ CompareOperator.EndsWith, GetEndsWithExpression },
-			{ CompareOperator.ContainedIn, GetContainedInExpression },
+			{ CompareOperator.ContainedIn, GetContainedInExpression }
+		};
+
+		private static readonly Dictionary<CompareOperator, Func<MemberExpression, ConstantExpression, ConstantExpression, WhereQueryEngineOptions, Expression>> _compareOperatorExpressionsForNull = new()
+		{
+			{ CompareOperator.EqualOrNull, GetEqualOrNullExpression },
+			{ CompareOperator.NotEqualOrNull, GetNotEqualOrNullExpression },
+			{ CompareOperator.GreaterThanOrNull, GetGreaterThanOrNullExpression },
+			{ CompareOperator.GreaterThanOrEqualOrNull,GetGreaterThanOrEqualOrNullExpression },
+			{ CompareOperator.LessThanOrNull, GetLessThanOrNullExpression },
+			{ CompareOperator.LessThanOrEqualOrNull,GetLessThanOrEqualOrNullExpression },
 		};
 
 		private static readonly Dictionary<CompareOperator, ExpressionType> _compareOperatorExpressionType = new()
@@ -46,12 +58,28 @@ namespace Eshava.Core.Linq.Extensions
 
 		public static bool ExistsOperation(this CompareOperator compareOperator)
 		{
-			return _compareOperatorExpressions.ContainsKey(compareOperator);
+			return _compareOperatorExpressions.ContainsKey(compareOperator) || _compareOperatorExpressionsForNull.ContainsKey(compareOperator);
 		}
 
-		public static Expression BuildExpression(this CompareOperator compareOperator, MemberExpression member, ConstantExpression constantValue, WhereQueryEngineOptions options)
+		public static Expression BuildExpression(this CompareOperator compareOperator, MemberExpression member, ConstantExpression constantValue, ConstantExpression constantValueForNull, WhereQueryEngineOptions options)
 		{
-			return _compareOperatorExpressions[compareOperator](member, constantValue, options);
+			switch (compareOperator)
+			{
+				case CompareOperator.IsNull:
+				case CompareOperator.IsNotNull:
+					return _compareOperatorExpressions[compareOperator](member, constantValueForNull, options);
+
+				case CompareOperator.EqualOrNull:
+				case CompareOperator.NotEqualOrNull:
+				case CompareOperator.GreaterThanOrNull:
+				case CompareOperator.GreaterThanOrEqualOrNull:
+				case CompareOperator.LessThanOrNull:
+				case CompareOperator.LessThanOrEqualOrNull:
+					return _compareOperatorExpressionsForNull[compareOperator](member, constantValue, constantValueForNull, options);
+
+				default:
+					return _compareOperatorExpressions[compareOperator](member, constantValue, options);
+			}
 		}
 
 		private static Expression GetEqualExpression(MemberExpression member, ConstantExpression constant, WhereQueryEngineOptions options)
@@ -64,6 +92,11 @@ namespace Eshava.Core.Linq.Extensions
 			return Expression.Equal(member, constant);
 		}
 
+		private static Expression GetEqualOrNullExpression(MemberExpression member, ConstantExpression constant, ConstantExpression constantForNull, WhereQueryEngineOptions options)
+		{
+			return Expression.OrElse(GetEqualExpression(member, constant, options), GetEqualExpression(member, constantForNull, options));
+		}
+
 		private static Expression GetNotEqualExpression(MemberExpression member, ConstantExpression constant, WhereQueryEngineOptions options)
 		{
 			if (member.Type == TypeConstants.String && (options.CaseInsensitive ?? false))
@@ -74,9 +107,19 @@ namespace Eshava.Core.Linq.Extensions
 			return Expression.NotEqual(member, constant);
 		}
 
+		private static Expression GetNotEqualOrNullExpression(MemberExpression member, ConstantExpression constant, ConstantExpression constantForNull, WhereQueryEngineOptions options)
+		{
+			return Expression.OrElse(GetNotEqualExpression(member, constant, options), GetEqualExpression(member, constantForNull, options));
+		}
+
 		private static Expression GetGreaterThanExpression(MemberExpression member, ConstantExpression constant, WhereQueryEngineOptions options)
 		{
 			return Expression.GreaterThan(member, constant);
+		}
+
+		private static Expression GetGreaterThanOrNullExpression(MemberExpression member, ConstantExpression constant, ConstantExpression constantForNull, WhereQueryEngineOptions options)
+		{
+			return Expression.OrElse(GetGreaterThanExpression(member, constant, options), GetEqualExpression(member, constantForNull, options));
 		}
 
 		private static Expression GetGreaterThanOrEqualExpression(MemberExpression member, ConstantExpression constant, WhereQueryEngineOptions options)
@@ -84,14 +127,29 @@ namespace Eshava.Core.Linq.Extensions
 			return Expression.GreaterThanOrEqual(member, constant);
 		}
 
+		private static Expression GetGreaterThanOrEqualOrNullExpression(MemberExpression member, ConstantExpression constant, ConstantExpression constantForNull, WhereQueryEngineOptions options)
+		{
+			return Expression.OrElse(GetGreaterThanOrEqualExpression(member, constant, options), GetEqualExpression(member, constantForNull, options));
+		}
+
 		private static Expression GetLessThanExpression(MemberExpression member, ConstantExpression constant, WhereQueryEngineOptions options)
 		{
 			return Expression.LessThan(member, constant);
 		}
 
+		private static Expression GetLessThanOrNullExpression(MemberExpression member, ConstantExpression constant, ConstantExpression constantForNull, WhereQueryEngineOptions options)
+		{
+			return Expression.OrElse(GetLessThanExpression(member, constant, options), GetEqualExpression(member, constantForNull, options));
+		}
+
 		private static Expression GetLessThanOrEqualExpression(MemberExpression member, ConstantExpression constant, WhereQueryEngineOptions options)
 		{
 			return Expression.LessThanOrEqual(member, constant);
+		}
+
+		private static Expression GetLessThanOrEqualOrNullExpression(MemberExpression member, ConstantExpression constant, ConstantExpression constantForNull, WhereQueryEngineOptions options)
+		{
+			return Expression.OrElse(GetLessThanOrEqualExpression(member, constant, options), GetEqualExpression(member, constantForNull, options));
 		}
 
 		private static Expression GetContainsExpression(MemberExpression member, ConstantExpression constant, WhereQueryEngineOptions options)

@@ -174,7 +174,7 @@ namespace Eshava.Core.Linq
 				var conditionResult = BuildPropertyQueryConditions(queryContainer);
 				if (conditionResult.IsFaulty)
 				{
-					return ResponseData<IEnumerable<Expression<Func<T, bool>>>>.CreateFaultyResponse(conditionResult);
+					return conditionResult.ConvertTo<IEnumerable<Expression<Func<T, bool>>>>();
 				}
 
 				if (conditionResult.Data?.Any() ?? false)
@@ -188,7 +188,7 @@ namespace Eshava.Core.Linq
 				var conditionResult = BuildGlobalQueryCondition(queryContainer);
 				if (conditionResult.IsFaulty)
 				{
-					return ResponseData<IEnumerable<Expression<Func<T, bool>>>>.CreateFaultyResponse(conditionResult);
+					return conditionResult.ConvertTo<IEnumerable<Expression<Func<T, bool>>>>();
 				}
 
 				if (conditionResult.Data != null)
@@ -354,7 +354,7 @@ namespace Eshava.Core.Linq
 							var mappingResult = GetMappingCondition(property, mapping, queryContainer.Options, TypeConstants.String);
 							if (mappingResult.IsFaulty)
 							{
-								return ResponseData<Expression<Func<T, bool>>>.CreateFaultyResponse(mappingResult);
+								return mappingResult.ConvertTo<Expression<Func<T, bool>>>();
 							}
 
 							orExpressions.AddRange(mappingResult.Data);
@@ -365,7 +365,7 @@ namespace Eshava.Core.Linq
 						var conditionsResult = GetPropertyCondition<T>(property, queryContainer.PropertyInfos, queryContainer.Parameter, queryContainer.Options);
 						if (conditionsResult.IsFaulty)
 						{
-							return ResponseData<Expression<Func<T, bool>>>.CreateFaultyResponse(conditionsResult);
+							return conditionsResult.ConvertTo<Expression<Func<T, bool>>>();
 						}
 
 						if (conditionsResult.Data.Any())
@@ -387,7 +387,7 @@ namespace Eshava.Core.Linq
 						var mappingResult = GetMappingCondition(property, mapping, queryContainer.Options, TypeConstants.String);
 						if (mappingResult.IsFaulty)
 						{
-							return ResponseData<Expression<Func<T, bool>>>.CreateFaultyResponse(mappingResult);
+							return mappingResult.ConvertTo<Expression<Func<T, bool>>>();
 						}
 
 						orExpressions.AddRange(mappingResult.Data);
@@ -459,6 +459,7 @@ namespace Eshava.Core.Linq
 					Parameter = mappingExpression.Parameters.First(),
 					Operator = property.Operator,
 					ConstantValue = dataType.GetConstantExpression(searchTermPart, memberType, property.Operator, options),
+					ConstantValueForNull = dataType.GetNullConstantExpression(),
 					Options = options
 				};
 
@@ -494,14 +495,8 @@ namespace Eshava.Core.Linq
 					return new ResponseData<IEnumerable<Expression<Func<T, bool>>>>(new List<Expression<Func<T, bool>>>());
 				}
 
-				return ResponseData<IEnumerable<Expression<Func<T, bool>>>>.CreateFaultyResponse(MessageConstants.INVALIDDATA, validationErrors: new List<ValidationError>
-				{
-					new ValidationError
-					{
-						PropertyName = property.PropertyName,
-						ErrorType = MessageConstants.INVALIDPROPERTY
-					}
-				});
+				return ResponseData<IEnumerable<Expression<Func<T, bool>>>>.CreateFaultyResponse(MessageConstants.INVALIDDATA)
+					.AddValidationError(property.PropertyName, MessageConstants.INVALIDPROPERTY);
 			}
 
 			if (propertyInfo.GetCustomAttribute<QueryIgnoreAttribute>() != null)
@@ -537,6 +532,7 @@ namespace Eshava.Core.Linq
 					Parameter = parameterExpression,
 					Operator = property.Operator,
 					ConstantValue = dataType.GetConstantExpression(searchTermPart, propertyType, property.Operator, options),
+					ConstantValueForNull = dataType.GetNullConstantExpression(),
 					Options = options
 				};
 
@@ -610,19 +606,12 @@ namespace Eshava.Core.Linq
 			var expression = default(Expression);
 			try
 			{
-				expression = data.Operator.BuildExpression(data.Member, data.ConstantValue, data.Options);
+				expression = data.Operator.BuildExpression(data.Member, data.ConstantValue, data.ConstantValueForNull, data.Options);
 			}
 			catch (Exception ex)
 			{
-				return ResponseData<Expression<Func<T, bool>>>.CreateFaultyResponse(MessageConstants.INVALIDDATA, rawMessage: ex.Message, validationErrors: new List<ValidationError>
-				{
-					new ValidationError
-					{
-						PropertyName = data.Member.Member.Name,
-						Value = data.Operator.ToString(),
-						ErrorType = MessageConstants.INVALIDFILTERVALUE
-					}
-				});
+				return ResponseData<Expression<Func<T, bool>>>.CreateFaultyResponse(MessageConstants.INVALIDDATA, rawMessage: ex.Message)
+					.AddValidationError(data.Member.Member.Name, MessageConstants.INVALIDFILTERVALUE, data.Operator);
 			}
 
 			return new ResponseData<Expression<Func<T, bool>>>
@@ -823,7 +812,7 @@ namespace Eshava.Core.Linq
 					var mappingResult = GetMappingCondition(property, mapping, queryContainer.Options);
 					if (mappingResult.IsFaulty)
 					{
-						return ResponseData<IEnumerable<Expression<Func<T, bool>>>>.CreateFaultyResponse(mappingResult);
+						return mappingResult.ConvertTo<IEnumerable<Expression<Func<T, bool>>>>();
 					}
 
 					var joinResult = JoinAndExpressions(mappingResult.Data);
@@ -851,7 +840,7 @@ namespace Eshava.Core.Linq
 				var conditionResult = GetPropertyCondition<T>(property, queryContainer.PropertyInfos, queryContainer.Parameter, queryContainer.Options);
 				if (conditionResult.IsFaulty)
 				{
-					return ResponseData<IEnumerable<Expression<Func<T, bool>>>>.CreateFaultyResponse(conditionResult);
+					return conditionResult.ConvertTo<IEnumerable<Expression<Func<T, bool>>>>();
 				}
 
 				conditions.AddRange(conditionResult.Data);

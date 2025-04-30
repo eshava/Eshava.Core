@@ -20,5 +20,14 @@ namespace Eshava.Core.Linq.Constants
 		public static readonly Type Object = typeof(object);
 		public static readonly Type SortField = typeof(SortField);
 		public static readonly Type String = typeof(string);
+
+		public static readonly Type NullableBool = typeof(bool?);
+		public static readonly Type NullableDateTime = typeof(DateTime?);
+		public static readonly Type NullableDecimal = typeof(decimal?);
+		public static readonly Type NullableDouble = typeof(double?);
+		public static readonly Type NullableFloat = typeof(float?);
+		public static readonly Type NullableGuid = typeof(Guid?);
+		public static readonly Type NullableInt = typeof(int?);
+		public static readonly Type NullableLong = typeof(long?);
 	}
 }

@@ -9,6 +9,7 @@ namespace Eshava.Core.Linq.Models
 		public PropertyInfo PropertyInfo { get; set; }
 		public MemberExpression Member { get; set; }
 		public ConstantExpression ConstantValue { get; set; }
+		public ConstantExpression ConstantValueForNull { get; set; }
 		public ParameterExpression Parameter { get; set; }
 		public CompareOperator Operator { get; set; }
 		public WhereQueryEngineOptions Options{ get; set; }

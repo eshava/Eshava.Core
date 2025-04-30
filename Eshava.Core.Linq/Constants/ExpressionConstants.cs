@@ -18,15 +18,45 @@ namespace Eshava.Core.Linq.Constants
 		private static readonly Dictionary<Type, Func<string, Type, CompareOperator, WhereQueryEngineOptions, ConstantExpression>> _constantExpressions = new()
 		{
 			{ TypeConstants.Guid, GetConstantGuid },
+			{ TypeConstants.NullableGuid, GetConstantGuid },
 			{ TypeConstants.String, GetConstantString },
 			{ TypeConstants.Bool, GetConstantBoolean },
+			{ TypeConstants.NullableBool, GetConstantBoolean },
 			{ TypeConstants.Int, GetConstantInteger },
+			{ TypeConstants.NullableInt, GetConstantInteger },
 			{ TypeConstants.Long, GetConstantLong },
+			{ TypeConstants.NullableLong, GetConstantLong },
 			{ TypeConstants.Decimal, GetConstantDecimal },
+			{ TypeConstants.NullableDecimal, GetConstantDecimal },
 			{ TypeConstants.Double, GetConstantDouble },
+			{ TypeConstants.NullableDouble, GetConstantDouble },
 			{ TypeConstants.Float, GetConstantFloat },
+			{ TypeConstants.NullableFloat, GetConstantFloat },
 			{ TypeConstants.DateTime, GetConstantDateTime },
+			{ TypeConstants.NullableDateTime, GetConstantDateTime },
 			{ TypeConstants.Enum, GetConstantEnum }
+		};
+
+		private static readonly Dictionary<Type, ConstantExpression> _constantExpressionsForNull = new()
+		{
+			{ TypeConstants.Guid, Expression.Constant(null, TypeConstants.NullableGuid) },
+			{ TypeConstants.NullableGuid, Expression.Constant(null, TypeConstants.NullableGuid) },
+			{ TypeConstants.String, StringNull },
+			{ TypeConstants.Bool, Expression.Constant(null, TypeConstants.NullableBool) },
+			{ TypeConstants.NullableBool, Expression.Constant(null, TypeConstants.NullableBool) },
+			{ TypeConstants.Int, Expression.Constant(null, TypeConstants.NullableInt) },
+			{ TypeConstants.NullableInt, Expression.Constant(null, TypeConstants.NullableInt) },
+			{ TypeConstants.Long, Expression.Constant(null, TypeConstants.NullableLong) },
+			{ TypeConstants.NullableLong, Expression.Constant(null, TypeConstants.NullableLong) },
+			{ TypeConstants.Decimal, Expression.Constant(null, TypeConstants.NullableDecimal) },
+			{ TypeConstants.NullableDecimal, Expression.Constant(null, TypeConstants.NullableDecimal) },
+			{ TypeConstants.Double, Expression.Constant(null, TypeConstants.NullableDouble) },
+			{ TypeConstants.NullableDouble, Expression.Constant(null, TypeConstants.NullableDouble) },
+			{ TypeConstants.Float, Expression.Constant(null, TypeConstants.NullableFloat) },
+			{ TypeConstants.NullableFloat, Expression.Constant(null, TypeConstants.NullableFloat) },
+			{ TypeConstants.DateTime, Expression.Constant(null, TypeConstants.NullableDateTime) },
+			{ TypeConstants.NullableDateTime, Expression.Constant(null, TypeConstants.NullableDateTime) },
+			{ TypeConstants.Enum, Expression.Constant(null, TypeConstants.Enum) }
 		};
 
 		public static bool ContainsConstantOperation(this Type type)
@@ -36,12 +66,32 @@ namespace Eshava.Core.Linq.Constants
 
 		public static ConstantExpression GetConstantExpression(this Type type, string value, Type dataType, CompareOperator compareOperator, WhereQueryEngineOptions options)
 		{
-			return _constantExpressions[type](value, dataType, compareOperator, options);
+			if (compareOperator == CompareOperator.IsNull || compareOperator == CompareOperator.IsNotNull || compareOperator == CompareOperator.None)
+			{
+				return null;
+			}
+
+			if (_constantExpressions.TryGetValue(type, out var expressionFunc))
+			{
+				return expressionFunc(value, dataType, compareOperator, options);
+			}
+
+			return null;
+		}
+
+		public static ConstantExpression GetNullConstantExpression(this Type type)
+		{
+			if (_constantExpressionsForNull.TryGetValue(type, out var expression))
+			{
+				return expression;
+			}
+
+			return null;
 		}
 
 		private static ConstantExpression GetConstantGuid(string value, Type dataType, CompareOperator compareOperator, WhereQueryEngineOptions options)
 		{
-			if (value.IsNullOrEmpty() || compareOperator == CompareOperator.None)
+			if (value.IsNullOrEmpty())
 			{
 				return null;
 			}
@@ -70,7 +120,7 @@ namespace Eshava.Core.Linq.Constants
 
 		private static ConstantExpression GetConstantString(string value, Type dataType, CompareOperator compareOperator, WhereQueryEngineOptions options)
 		{
-			if (value.IsNullOrEmpty() || compareOperator == CompareOperator.None)
+			if (value.IsNullOrEmpty())
 			{
 				return null;
 			}
@@ -92,7 +142,7 @@ namespace Eshava.Core.Linq.Constants
 
 		private static ConstantExpression GetConstantBoolean(string value, Type dataType, CompareOperator compareOperator, WhereQueryEngineOptions options)
 		{
-			if (value.IsNullOrEmpty() || compareOperator == CompareOperator.None)
+			if (value.IsNullOrEmpty())
 			{
 				return null;
 			}
@@ -104,7 +154,7 @@ namespace Eshava.Core.Linq.Constants
 
 		private static ConstantExpression GetConstantDecimal(string value, Type dataType, CompareOperator compareOperator, WhereQueryEngineOptions options)
 		{
-			if (value.IsNullOrEmpty() || compareOperator == CompareOperator.None)
+			if (value.IsNullOrEmpty())
 			{
 				return null;
 			}
@@ -133,7 +183,7 @@ namespace Eshava.Core.Linq.Constants
 
 		private static ConstantExpression GetConstantDouble(string value, Type dataType, CompareOperator compareOperator, WhereQueryEngineOptions options)
 		{
-			if (value.IsNullOrEmpty() || compareOperator == CompareOperator.None)
+			if (value.IsNullOrEmpty())
 			{
 				return null;
 			}
@@ -162,7 +212,7 @@ namespace Eshava.Core.Linq.Constants
 
 		private static ConstantExpression GetConstantFloat(string value, Type dataType, CompareOperator compareOperator, WhereQueryEngineOptions options)
 		{
-			if (value.IsNullOrEmpty() || compareOperator == CompareOperator.None)
+			if (value.IsNullOrEmpty())
 			{
 				return null;
 			}
@@ -191,7 +241,7 @@ namespace Eshava.Core.Linq.Constants
 
 		private static ConstantExpression GetConstantInteger(string value, Type dataType, CompareOperator compareOperator, WhereQueryEngineOptions options)
 		{
-			if (value.IsNullOrEmpty() || compareOperator == CompareOperator.None)
+			if (value.IsNullOrEmpty())
 			{
 				return null;
 			}
@@ -220,7 +270,7 @@ namespace Eshava.Core.Linq.Constants
 
 		private static ConstantExpression GetConstantLong(string value, Type dataType, CompareOperator compareOperator, WhereQueryEngineOptions options)
 		{
-			if (value.IsNullOrEmpty() || compareOperator == CompareOperator.None)
+			if (value.IsNullOrEmpty())
 			{
 				return null;
 			}
@@ -249,7 +299,7 @@ namespace Eshava.Core.Linq.Constants
 
 		private static ConstantExpression GetConstantEnum(string value, Type dataType, CompareOperator compareOperator, WhereQueryEngineOptions options)
 		{
-			if (value.IsNullOrEmpty() || compareOperator == CompareOperator.None)
+			if (value.IsNullOrEmpty())
 			{
 				return null;
 			}
@@ -279,7 +329,7 @@ namespace Eshava.Core.Linq.Constants
 
 		private static ConstantExpression GetConstantDateTime(string value, Type dataType, CompareOperator compareOperator, WhereQueryEngineOptions options)
 		{
-			if (value.IsNullOrEmpty() || compareOperator == CompareOperator.None)
+			if (value.IsNullOrEmpty())
 			{
 				return null;
 			}

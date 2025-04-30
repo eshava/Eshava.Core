@@ -553,18 +553,27 @@ namespace Eshava.Test.Core.Linq
 				new() {
 					Beta = 1,
 					Gamma = "DD",
-					Delta = "QuackFu better than KungFu"
+					Delta = "QuackFu better than KungFu",
+					Epsilon = ""
 				},
 				new() {
 					Beta = 2,
 					Gamma = "Darkwing Duck",
-					Delta = "QuackFu better than KungFu"
+					Delta = "QuackFu better than KungFu",
+					Epsilon = null
 				},
 				new() {
 					Beta = 3,
 					Gamma = "Darkwing Duck",
-					Delta = "KungFu"
-				}
+					Delta = "KungFu",
+					Epsilon = ""
+				},
+				new() {
+					Beta = 4,
+					Gamma = "Darkwing Duck",
+					Delta = "QuackFu better than KungFu",
+					Epsilon = ""
+				},
 			};
 
 			var queryParameter = new QueryParameters
@@ -580,21 +589,28 @@ namespace Eshava.Test.Core.Linq
 						Operator =  CompareOperator.Contains,
 						PropertyName = nameof(Alpha.Delta),
 						SearchTerm = "QuackFu"
+					},
+					new() {
+						Operator =  CompareOperator.IsNull,
+						PropertyName = nameof(Alpha.Epsilon),
+						SearchTerm = null
 					}
 				}
 			};
 
 			Expression<Func<Alpha, bool>> expectedResultGamma = p => p.Gamma == "Darkwing Duck";
 			Expression<Func<Alpha, bool>> expectedResultDelta = p => p.Delta != null && p.Delta.Contains("QuackFu");
+			Expression<Func<Alpha, bool>> expectedResultEpsilon = p => p.Epsilon == null;
 
 			// Act
 			var result = _classUnderTest.BuildQueryExpressions<Alpha>(queryParameter);
 
 			// Assert
 			result.IsFaulty.Should().BeFalse();
-			result.Data.Should().HaveCount(2);
+			result.Data.Should().HaveCount(3);
 			result.Data.First().Should().BeEquivalentTo(expectedResultGamma);
-			result.Data.Last().Should().BeEquivalentTo(expectedResultDelta);
+			result.Data.Skip(1).First().Should().BeEquivalentTo(expectedResultDelta);
+			result.Data.Last().Should().BeEquivalentTo(expectedResultEpsilon);
 
 			var resultWhere = exampleList.Where(result.Data.First().Compile()).Where(result.Data.Last().Compile()).ToList();
 			resultWhere.Should().HaveCount(1);
@@ -2083,6 +2099,156 @@ namespace Eshava.Test.Core.Linq
 		}
 
 		[TestMethod]
+		public void BuildQueryExpressionsIntegerLongOrNullPropertyTest()
+		{
+			// Arrange
+			var exampleList = new List<Alpha>
+			{
+				new() {
+					Beta = 1,
+					LambdaLongNullable = 4L,
+					LambdaNullable = 10
+				},
+				new() {
+					Beta = 2,
+					LambdaLongNullable = 6L,
+					LambdaNullable = 11
+				},
+				new() {
+					Beta = 3,
+					LambdaLongNullable = 6L,
+					LambdaNullable = 8
+				},
+				new() {
+					Beta = 4,
+					LambdaLongNullable = 6L,
+					LambdaNullable = 13
+				},
+				new() {
+					Beta = 5,
+					LambdaLongNullable = null,
+					LambdaNullable = 11
+				},
+				new() {
+					Beta = 6,
+					LambdaLongNullable = 6L,
+					LambdaNullable = null
+				},
+			};
+
+			var queryParameter = new QueryParameters
+			{
+				WhereQueryProperties = new List<WhereQueryProperty>
+				{
+					new() {
+						Operator =  CompareOperator.GreaterThanOrNull,
+						PropertyName = nameof(Alpha.LambdaLongNullable),
+						SearchTerm = "5"
+					},
+					new() {
+						Operator =  CompareOperator.LessThanOrNull,
+						PropertyName = nameof(Alpha.LambdaNullable),
+						SearchTerm = "12"
+					}
+				}
+			};
+
+			Expression<Func<Alpha, bool>> expectedResultLambda = p => p.LambdaLongNullable > 5 || p.LambdaLongNullable == null;
+			Expression<Func<Alpha, bool>> expectedResultLambdaNullable = p => p.LambdaNullable < 12 || p.LambdaNullable == null;
+
+			// Act
+			var result = _classUnderTest.BuildQueryExpressions<Alpha>(queryParameter);
+
+			// Assert
+			result.IsFaulty.Should().BeFalse();
+			result.Data.Should().HaveCount(2);
+			result.Data.First().Should().BeEquivalentTo(expectedResultLambda);
+			result.Data.Last().Should().BeEquivalentTo(expectedResultLambdaNullable);
+
+			var resultWhere = exampleList.Where(result.Data.First().Compile()).Where(result.Data.Last().Compile()).ToList();
+			resultWhere.Should().HaveCount(4);
+			resultWhere[0].Beta.Should().Be(2);
+			resultWhere[1].Beta.Should().Be(3);
+			resultWhere[2].Beta.Should().Be(5);
+			resultWhere[3].Beta.Should().Be(6);
+		}
+
+		[TestMethod]
+		public void BuildQueryExpressionsIntegerLongEqualOrNullPropertyTest()
+		{
+			// Arrange
+			var exampleList = new List<Alpha>
+			{
+				new() {
+					Beta = 1,
+					LambdaLongNullable = 4L,
+					LambdaNullable = 10
+				},
+				new() {
+					Beta = 2,
+					LambdaLongNullable = 6L,
+					LambdaNullable = 12
+				},
+				new() {
+					Beta = 3,
+					LambdaLongNullable = 5L,
+					LambdaNullable = 8
+				},
+				new() {
+					Beta = 4,
+					LambdaLongNullable = 6L,
+					LambdaNullable = 13
+				},
+				new() {
+					Beta = 5,
+					LambdaLongNullable = null,
+					LambdaNullable = 12
+				},
+				new() {
+					Beta = 6,
+					LambdaLongNullable = 5L,
+					LambdaNullable = null
+				},
+			};
+
+			var queryParameter = new QueryParameters
+			{
+				WhereQueryProperties = new List<WhereQueryProperty>
+				{
+					new() {
+						Operator =  CompareOperator.GreaterThanOrEqualOrNull,
+						PropertyName = nameof(Alpha.LambdaLongNullable),
+						SearchTerm = "5"
+					},
+					new() {
+						Operator =  CompareOperator.LessThanOrEqualOrNull,
+						PropertyName = nameof(Alpha.LambdaNullable),
+						SearchTerm = "12"
+					}
+				}
+			};
+
+			Expression<Func<Alpha, bool>> expectedResultLambda = p => p.LambdaLongNullable > 5 || p.LambdaLongNullable == null;
+			Expression<Func<Alpha, bool>> expectedResultLambdaNullable = p => p.LambdaNullable < 12 || p.LambdaNullable == null;
+
+			// Act
+			var result = _classUnderTest.BuildQueryExpressions<Alpha>(queryParameter);
+
+			// Assert
+			result.IsFaulty.Should().BeFalse();
+			result.Data.Should().HaveCount(2);
+			result.Data.First().Should().BeEquivalentTo(expectedResultLambda);
+			result.Data.Last().Should().BeEquivalentTo(expectedResultLambdaNullable);
+
+			var resultWhere = exampleList.Where(result.Data.First().Compile()).Where(result.Data.Last().Compile()).ToList();
+			resultWhere.Should().HaveCount(4);
+			resultWhere[0].Beta.Should().Be(2);
+			resultWhere[1].Beta.Should().Be(3);
+			resultWhere[2].Beta.Should().Be(5);
+			resultWhere[3].Beta.Should().Be(6);
+		}
+
+		[TestMethod]
 		public void BuildQueryExpressionsLongPropertyTest()
 		{
 			// Arrange
@@ -2517,6 +2683,69 @@ namespace Eshava.Test.Core.Linq
 			var resultWhere = exampleList.Where(result.Data.First().Compile()).Where(result.Data.Last().Compile()).ToList();
 			resultWhere.Should().HaveCount(1);
 			resultWhere.First().Beta.Should().Be(2);
+		}
+
+		[TestMethod]
+		public void BuildQueryExpressionsBooleanNotNullPropertyTest()
+		{
+			// Arrange
+			var exampleList = new List<Alpha>
+			{
+				new() {
+					Beta = 1,
+					StigmaOne = true,
+					StigmaTwo = null
+				},
+				new() {
+					Beta = 2,
+					StigmaOne = true,
+					StigmaTwo = false
+				},
+				new() {
+					Beta = 3,
+					StigmaOne = true,
+					StigmaTwo = true
+				},
+				new() {
+					Beta = 4,
+					StigmaOne = false,
+					StigmaTwo = false
+				}
+			};
+
+			var queryParameter = new QueryParameters
+			{
+				WhereQueryProperties = new List<WhereQueryProperty>
+				{
+					new() {
+						Operator =  CompareOperator.Equal,
+						PropertyName = nameof(Alpha.StigmaOne),
+						SearchTerm = "1"
+					},
+					new() {
+						Operator =  CompareOperator.IsNotNull,
+						PropertyName = nameof(Alpha.StigmaTwo),
+						SearchTerm = null
+					}
+				}
+			};
+
+			Expression<Func<Alpha, bool>> expectedResultStigmaOne = p => p.StigmaOne == true;
+			Expression<Func<Alpha, bool>> expectedResultStigmaTwo = p => p.StigmaTwo != null;
+
+			// Act
+			var result = _classUnderTest.BuildQueryExpressions<Alpha>(queryParameter);
+
+			// Assert
+			result.IsFaulty.Should().BeFalse();
+			result.Data.Should().HaveCount(2);
+			result.Data.First().Should().BeEquivalentTo(expectedResultStigmaOne);
+			result.Data.Last().Should().BeEquivalentTo(expectedResultStigmaTwo);
+
+			var resultWhere = exampleList.Where(result.Data.First().Compile()).Where(result.Data.Last().Compile()).ToList();
+			resultWhere.Should().HaveCount(2);
+			resultWhere[0].Beta.Should().Be(2);
+			resultWhere[1].Beta.Should().Be(3);
 		}
 
 		[TestMethod]

@@ -30,6 +30,22 @@ namespace Eshava.Core.Linq.Enums
 		[EnumMember(Value = nameof(ContainsNot))]
 		ContainsNot = 10,
 		[EnumMember(Value = nameof(ContainedIn))]
-		ContainedIn = 11
+		ContainedIn = 11,
+		[EnumMember(Value = nameof(IsNull))]
+		IsNull = 12,
+		[EnumMember(Value = nameof(IsNotNull))]
+		IsNotNull = 13,
+		[EnumMember(Value = nameof(EqualOrNull))]
+		EqualOrNull = 14,
+		[EnumMember(Value = nameof(NotEqualOrNull))]
+		NotEqualOrNull = 15,
+		[EnumMember(Value = nameof(GreaterThanOrNull))]
+		GreaterThanOrNull = 16,
+		[EnumMember(Value = nameof(GreaterThanOrEqualOrNull))]
+		GreaterThanOrEqualOrNull = 17,
+		[EnumMember(Value = nameof(LessThanOrNull))]
+		LessThanOrNull = 18,
+		[EnumMember(Value = nameof(LessThanOrEqualOrNull))]
+		LessThanOrEqualOrNull = 19,
 	}
 }
