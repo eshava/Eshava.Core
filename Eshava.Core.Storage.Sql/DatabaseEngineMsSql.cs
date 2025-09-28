@@ -244,18 +244,61 @@ namespace Eshava.Core.Storage.Sql
 
 		public async Task<StorageResponse<bool>> CopyDatabaseAsync(CopyDatabaseRequest request)
 		{
-			// 1) Create database backup
-			var databaseBackupFilePath = System.IO.Path.Combine(request.BackupPath,  $"{request.DatabaseNameSource}_{Guid.NewGuid()}{ConstantsMsSql.FILE_EXTENSION_BAK}");
+			var databaseBackupFilePath = System.IO.Path.Combine(request.BackupPath, $"{request.DatabaseNameSource}_{Guid.NewGuid()}{ConstantsMsSql.FILE_EXTENSION_BAK}");
 			var sourceDataFileName = GetDatabaseName(DatabaseFileType.Data, request.DatabaseNameSource);
 			var sourceLogFileName = GetDatabaseName(DatabaseFileType.Log, request.DatabaseNameSource);
 
+			// 1) Check if target file path set
+			if (request.TargetFilePathData.IsNullOrEmpty() || request.TargetFilePathLog.IsNullOrEmpty())
+			{
+				try
+				{
+					var sqlCommand = new StringBuilder();
+					sqlCommand.AppendLine($"{ConstantsMsSql.SELECT} [physical_name], [type_desc] {ConstantsMsSql.FROM} sys.master_files");
+					sqlCommand.AppendLine($"{ConstantsMsSql.WHERE} [name] {ConstantsMsSql.LIKE} @database");
+
+					var databases = await ExecuteReaderAsync<DatabasePath>(
+						request.Server,
+						sqlCommand.ToString(),
+						reader => new DatabasePath
+						{
+							Path = reader.GetString(reader.GetOrdinal("physical_name")),
+							Type = reader.GetString(reader.GetOrdinal("type_desc"))
+						},
+						ConstantsMsSql.MASTER,
+						new SqlParameter("@database", $"{request.DatabaseNameSource}%")
+					);
+
+					var dataPath = databases.FirstOrDefault(db => db.Type == ConstantsMsSql.ROWS);
+					if (request.TargetFilePathData.IsNullOrEmpty() && dataPath is not null)
+					{
+						request.TargetFilePathData = System.IO.Path.GetDirectoryName(dataPath.Path);
+					}
+
+					var logPath = databases.FirstOrDefault(db => db.Type == ConstantsMsSql.LOG);
+					if (request.TargetFilePathLog.IsNullOrEmpty() && logPath is not null)
+					{
+						request.TargetFilePathLog = System.IO.Path.GetDirectoryName(logPath.Path);
+					}
+				}
+				catch (Exception ex)
+				{
+					return new StorageResponse<bool>
+					{
+						IsFaulty = true,
+						Exception = ex
+					};
+				}
+			}
+
+			// 2) Create database backup
 			try
 			{
 				var sqlCommand = new StringBuilder();
 				sqlCommand.AppendLine($"{ConstantsMsSql.BACKUP} {ConstantsMsSql.DATABASE} [{request.DatabaseNameSource}]");
 				sqlCommand.AppendLine(JoinStatement(ConstantsMsSql.TODISK, databaseBackupFilePath));
 				sqlCommand.AppendLine(ConstantsMsSql.WITHCOPYONLY);
-				
+
 				await ExecuteNonQueryAsync(request.Server, sqlCommand.ToString(), ConstantsMsSql.MASTER);
 			}
 			catch (Exception ex)
@@ -267,7 +310,7 @@ namespace Eshava.Core.Storage.Sql
 				};
 			}
 
-			// 2) Restore backup as new database
+			// 3) Restore backup as new database
 			try
 			{
 				var targetDataFileName = GetDatabaseName(DatabaseFileType.Data, request.DatabaseNameTarget);
@@ -293,20 +336,10 @@ namespace Eshava.Core.Storage.Sql
 					Exception = ex
 				};
 			}
-
-			// 3) Delete backup file
-			try
+			finally
 			{
-				System.IO.File.Delete(databaseBackupFilePath);
-			}
-			catch (Exception ex)
-			{
-				return new StorageResponse<bool>
-				{
-					Data = true,
-					IsFaulty = false,
-					Exception = ex
-				};
+				// 4) Delete backup file
+				TryDeleteFile(databaseBackupFilePath);
 			}
 
 			return new StorageResponse<bool>
@@ -473,7 +506,7 @@ namespace Eshava.Core.Storage.Sql
 			return connection;
 		}
 
-		private async Task ExecuteNonQueryAsync(DatabaseConnectionOptions server, string sqlCommand, string databasename = null)
+		private async Task ExecuteNonQueryAsync(DatabaseConnectionOptions server, string sqlCommand, string databasename = null, params SqlParameter[] parameters)
 		{
 			var connection = await CreateAndOpenConnectionAsync(server, databasename);
 
@@ -483,6 +516,11 @@ namespace Eshava.Core.Storage.Sql
 				cmd.CommandType = CommandType.Text;
 				cmd.Connection = connection;
 				cmd.CommandTimeout = server.CommandTimeOut;
+
+				if ((parameters?.Length ?? 0) > 0)
+				{
+					cmd.Parameters.AddRange(parameters);
+				}
 
 				await cmd.ExecuteNonQueryAsync();
 				CloseConnection(connection);
@@ -553,7 +591,7 @@ namespace Eshava.Core.Storage.Sql
 			}
 		}
 
-		private async Task<IEnumerable<T>> ExecuteReaderAsync<T>(DatabaseConnectionOptions server, string sqlCommand, Func<SqlDataReader, T> read, string databasename = null) where T : class
+		private async Task<IEnumerable<T>> ExecuteReaderAsync<T>(DatabaseConnectionOptions server, string sqlCommand, Func<SqlDataReader, T> read, string databasename = null, params SqlParameter[] parameters) where T : class
 		{
 			var items = new List<T>();
 			var connection = await CreateAndOpenConnectionAsync(server, databasename);
@@ -564,6 +602,11 @@ namespace Eshava.Core.Storage.Sql
 				cmd.CommandType = CommandType.Text;
 				cmd.Connection = connection;
 				cmd.CommandTimeout = server.CommandTimeOut;
+
+				if ((parameters?.Length ?? 0) > 0)
+				{
+					cmd.Parameters.AddRange(parameters);
+				}
 
 				var reader = await cmd.ExecuteReaderAsync();
 
@@ -578,6 +621,21 @@ namespace Eshava.Core.Storage.Sql
 			}
 
 			return items;
+		}
+
+		private void TryDeleteFile(string fullFileName)
+		{
+			try
+			{
+				System.IO.File.Delete(fullFileName);
+			}
+			catch { }
+		}
+
+		private class DatabasePath
+		{
+			public string Path { get; set; }
+			public string Type { get; set; }
 		}
 	}
 }

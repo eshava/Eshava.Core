@@ -34,6 +34,7 @@
 		public const string CONVERT = "CONVERT";
 		public const string AS = "AS";
 		public const string REPLACE = "REPLACE";
+		public const string LIKE = "LIKE";
 
 		public const string MAX = "MAX";
 
@@ -63,6 +64,7 @@
 		public const string FILE_EXTENSION_LDF = ".ldf";
 
 		public const string LOG = "LOG";
+		public const string ROWS = "ROWS";
 		public const string TODISK = "TO DISK";
 		public const string WITHFORMAT = "WITH FORMAT";
 		public const string WITHCOPYONLY = "WITH COPY_ONLY";
