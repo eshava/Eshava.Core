@@ -17,14 +17,17 @@ namespace Eshava.Test.Core.Extensions
 
 		}
 
-		[TestMethod, ExpectedException(typeof(ArgumentNullException))]
+		[TestMethod]
 		public void GetDataTypeWithNullInputTest()
 		{
-			// Arrange
-			Type source = null;
-			
-			// Act
-			source.GetDataType();
+			Assert.Throws<ArgumentNullException>(() =>
+			{
+				// Arrange
+				Type source = null;
+
+				// Act
+				source.GetDataType();
+			});
 		}
 
 		[TestMethod]
@@ -52,15 +55,18 @@ namespace Eshava.Test.Core.Extensions
 			// Assert
 			result.Should().Be(typeof(int));
 		}
-		
-		[TestMethod, ExpectedException(typeof(ArgumentNullException))]
+
+		[TestMethod]
 		public void GetDataTypeFromIEnumerableWithNullInputTest()
 		{
-			// Arrange
-			Type source = null;
+			Assert.Throws<ArgumentNullException>(() =>
+			{
+				// Arrange
+				Type source = null;
 
-			// Act
-			source.GetDataTypeFromIEnumerable();
+				// Act
+				source.GetDataTypeFromIEnumerable();
+			});
 		}
 
 		[TestMethod]
@@ -101,15 +107,18 @@ namespace Eshava.Test.Core.Extensions
 			// Assert
 			result.Should().Be(typeof(string));
 		}
-		
-		[TestMethod, ExpectedException(typeof(ArgumentNullException))]
+
+		[TestMethod]
 		public void IsDataTypeNullableWithNullInputTest()
 		{
-			// Arrange
-			Type source = null;
+			Assert.Throws<ArgumentNullException>(() =>
+			{
+				// Arrange
+				Type source = null;
 
-			// Act
-			source.IsDataTypeNullable();
+				// Act
+				source.IsDataTypeNullable();
+			});
 		}
 
 		[TestMethod]
@@ -203,14 +212,17 @@ namespace Eshava.Test.Core.Extensions
 			result.Should().BeFalse();
 		}
 
-		[TestMethod, ExpectedException(typeof(ArgumentNullException))]
+		[TestMethod]
 		public void ImplementsIEnumerableWithNullInputTest()
 		{
-			// Arrange
-			Type source = null;
+			Assert.Throws<ArgumentNullException>(() =>
+			{
+				// Arrange
+				Type source = null;
 
-			// Act
-			source.ImplementsIEnumerable();
+				// Act
+				source.ImplementsIEnumerable();
+			});
 		}
 
 		[TestMethod]
@@ -226,25 +238,31 @@ namespace Eshava.Test.Core.Extensions
 			result.Should().BeTrue();
 		}
 
-		[TestMethod, ExpectedException(typeof(ArgumentNullException))]
+		[TestMethod]
 		public void ImplementsInterfaceWithNullInputTest()
 		{
-			// Arrange
-			Type source = null;
-			var interfaceType = typeof(IAlpha);
+			Assert.Throws<ArgumentNullException>(() =>
+			{
+				// Arrange
+				Type source = null;
+				var interfaceType = typeof(IAlpha);
 
-			// Act
-			source.ImplementsInterface(interfaceType);
+				// Act
+				source.ImplementsInterface(interfaceType);
+			});
 		}
 
-		[TestMethod, ExpectedException(typeof(ArgumentNullException))]
+		[TestMethod]
 		public void ImplementsInterfaceWithNullInterfaceTest()
 		{
-			// Arrange
-			var source = typeof(Alpha);
-			
-			// Act
-			source.ImplementsInterface(null);
+			Assert.Throws<ArgumentNullException>(() =>
+			{
+				// Arrange
+				var source = typeof(Alpha);
+
+				// Act
+				source.ImplementsInterface(null);
+			});
 		}
 
 		[TestMethod]
@@ -274,15 +292,18 @@ namespace Eshava.Test.Core.Extensions
 			// Assert
 			result.Should().BeFalse();
 		}
-		
-		[TestMethod, ExpectedException(typeof(ArgumentNullException))]
+
+		[TestMethod]
 		public void CreateInstanceWithNullInputTest()
 		{
-			// Arrange
-			Type source = null;
+			Assert.Throws<ArgumentNullException>(() =>
+			{
+				// Arrange
+				Type source = null;
 
-			// Act
-			source.CreateInstance();
+				// Act
+				source.CreateInstance();
+			});			
 		}
 
 		[TestMethod]

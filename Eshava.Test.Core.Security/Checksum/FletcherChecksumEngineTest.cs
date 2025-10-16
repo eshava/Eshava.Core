@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Eshava.Core.Security.Checksum;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -13,17 +11,20 @@ namespace Eshava.Test.Core.Security.Checksum
 		[TestInitialize]
 		public void Setup()
 		{
-			
+
 		}
 
-		[TestMethod, ExpectedException(typeof(ArgumentNullException))]
+		[TestMethod]
 		public void GetChecksumMode64NullInputTest()
 		{
-			// Arrange
-			var classUnderTest = new FletcherChecksumEngine(FletcherChecksumMode.Fletcher64);
-			
-			// Act
-			classUnderTest.GetChecksum(null);
+			Assert.Throws<ArgumentNullException>(() =>
+			{
+				// Arrange
+				var classUnderTest = new FletcherChecksumEngine(FletcherChecksumMode.Fletcher64);
+
+				// Act
+				classUnderTest.GetChecksum(null);
+			});
 		}
 
 		[TestMethod]

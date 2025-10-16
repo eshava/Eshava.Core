@@ -13,24 +13,30 @@ namespace Eshava.Test.Core.Extensions
 
 		}
 
-		[TestMethod, ExpectedException(typeof(ArgumentNullException))]
+		[TestMethod]
 		public void DecompressStringWithEmptyArrayTest()
 		{
-			// Arrange
-			var source = Array.Empty<byte>();
+			Assert.Throws<ArgumentNullException>(() =>
+			{
+				// Arrange
+				var source = Array.Empty<byte>();
 
-			// Act
-			source.DecompressString();
+				// Act
+				source.DecompressString();
+			});
 		}
 
-		[TestMethod, ExpectedException(typeof(ArgumentNullException))]
+		[TestMethod]
 		public void DecompressStringWithNullArrayTest()
 		{
-			// Arrange
-			byte[] source = null;
+			Assert.Throws<ArgumentNullException>(() =>
+			{
+				// Arrange
+				byte[] source = null;
 
-			// Act
-			source.DecompressString();
+				// Act
+				source.DecompressString();
+			});
 		}
 	}
 }

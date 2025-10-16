@@ -15,15 +15,18 @@ namespace Eshava.Test.Core.Extensions
 		{
 
 		}
-		
-		[TestMethod, ExpectedException(typeof(ArgumentNullException))]
+
+		[TestMethod]
 		public void GetDataTypeWithNullInputTest()
 		{
-			// Arrange
-			PropertyInfo source = null;
+			Assert.Throws<ArgumentNullException>(() =>
+			{
+				// Arrange
+				PropertyInfo source = null;
 
-			// Act
-			source.GetDataType();
+				// Act
+				source.GetDataType();
+			});
 		}
 
 		[TestMethod]

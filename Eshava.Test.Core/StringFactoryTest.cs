@@ -99,7 +99,7 @@ namespace Eshava.Test.Core
 
 			// Assert
 			result.Should().HaveLength(stringLength);
-			result.All(c => 
+			result.All(c =>
 				Convert.ToByte(c) >= charactersOne.Min && Convert.ToByte(c) <= charactersOne.Max
 				|| Convert.ToByte(c) >= charactersTwo.Min && Convert.ToByte(c) <= charactersTwo.Max
 				|| Convert.ToByte(c) >= charactersThree.Min && Convert.ToByte(c) <= charactersThree.Max
@@ -107,29 +107,38 @@ namespace Eshava.Test.Core
 			).Should().BeTrue();
 		}
 
-		[TestMethod, ExpectedException(typeof(NotSupportedException))]
+		[TestMethod]
 		public void GenerateRandomStringNoCharactersEnabledTest()
 		{
-			// Arrange
-			var stringLength = 10;
-			var options = new RandomStringOptions();
+			Assert.Throws<NotSupportedException>(() =>
+			{
+				// Arrange
+				var stringLength = 10;
+				var options = new RandomStringOptions();
 
-			// Act
-			StringFactory.GenerateRandomString(stringLength, options);
+				// Act
+				StringFactory.GenerateRandomString(stringLength, options);
+			});
 		}
 
-		[TestMethod, ExpectedException(typeof(NotSupportedException))]
+		[TestMethod]
 		public void GenerateRandomStringZeroStringLenghtTest()
 		{
-			// Act
-			StringFactory.GenerateRandomString(0);
+			Assert.Throws<NotSupportedException>(() =>
+			{
+				// Act
+				StringFactory.GenerateRandomString(0);
+			});
 		}
 
-		[TestMethod, ExpectedException(typeof(NotSupportedException))]
+		[TestMethod]
 		public void GenerateRandomStringNegativeStringLenghtTest()
 		{
-			// Act
-			StringFactory.GenerateRandomString(-10);
+			Assert.Throws<NotSupportedException>(() =>
+			{
+				// Act
+				StringFactory.GenerateRandomString(-10);
+			});			
 		}
 	}
 }

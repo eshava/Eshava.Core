@@ -86,18 +86,24 @@ namespace Eshava.Test.Core.Extensions
 			result.Should().Be(1);
 		}
 
-		[TestMethod, ExpectedException(typeof(ArgumentNullException))]
+		[TestMethod]
 		public void CompressExceptionStringEmptyTest()
 		{
-			// Act
-			"".Compress();
+			Assert.Throws<ArgumentNullException>(() =>
+			{
+				// Act
+				"".Compress();
+			});
 		}
 
-		[TestMethod, ExpectedException(typeof(ArgumentNullException))]
+		[TestMethod]
 		public void CompressExceptionStringNullTest()
 		{
-			// Act
-			((string)null).Compress();
+			Assert.Throws<ArgumentNullException>(() =>
+			{
+				// Act
+				((string)null).Compress();
+			});			
 		}
 
 		[TestMethod]
