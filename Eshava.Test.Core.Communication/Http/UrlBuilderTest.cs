@@ -18,18 +18,24 @@ namespace Eshava.Test.Core.Communication.Http
 			_classUnderTest = new UrlBuilder();
 		}
 
-		[TestMethod, ExpectedException(typeof(ArgumentNullException))]
+		[TestMethod]
 		public void GetSegementParameterNameWithNullInputTest()
 		{
-			// Act
-			_classUnderTest.GetSegementParameterName(null);
+			Assert.Throws<ArgumentNullException>(() =>
+			{
+				// Act
+				_classUnderTest.GetSegementParameterName(null);
+			});
 		}
 
-		[TestMethod, ExpectedException(typeof(ArgumentNullException))]
+		[TestMethod]
 		public void GetSegementParameterNameWithEmptyInputTest()
 		{
-			// Act
-			_classUnderTest.GetSegementParameterName("");
+			Assert.Throws<ArgumentNullException>(() =>
+			{
+				// Act
+				_classUnderTest.GetSegementParameterName("");
+			});
 		}
 
 		[TestMethod]
@@ -45,18 +51,24 @@ namespace Eshava.Test.Core.Communication.Http
 			result.Should().Be("{" + name + "}");
 		}
 
-		[TestMethod, ExpectedException(typeof(NullReferenceException))]
+		[TestMethod]
 		public void BuildWithOnlyNullInputsTest()
 		{
-			// Act
-			_classUnderTest.Build(null);
+			Assert.Throws<NullReferenceException>(() =>
+			{
+				// Act
+				_classUnderTest.Build(null);
+			});
 		}
 
-		[TestMethod, ExpectedException(typeof(ArgumentNullException))]
+		[TestMethod]
 		public void BuildWithBaseUrlNullTest()
 		{
-			// Act
-			_classUnderTest.Build(new UrlBuilderSettings());
+			Assert.Throws<ArgumentNullException>(() =>
+			{
+				// Act
+				_classUnderTest.Build(new UrlBuilderSettings());
+			});			
 		}
 
 		[TestMethod]

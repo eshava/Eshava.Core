@@ -55,7 +55,7 @@ namespace Eshava.Core.Communication.Ftp
 			}
 			catch (Exception ex)
 			{
-				return ResponseData<bool>.CreateFaultyResponse("UnexpectedError", ex, statusCode: (int)HttpStatusCode.InternalServerError);
+				return ResponseData<bool>.CreateInternalServerError("UnexpectedError", ex);
 			}
 		}
 
@@ -89,7 +89,7 @@ namespace Eshava.Core.Communication.Ftp
 			}
 			catch (Exception ex)
 			{
-				return ResponseData<bool>.CreateFaultyResponse("UnexpectedError", ex, statusCode: (int)HttpStatusCode.InternalServerError);
+				return ResponseData<bool>.CreateInternalServerError("UnexpectedError", ex);
 			}
 		}
 
@@ -117,7 +117,7 @@ namespace Eshava.Core.Communication.Ftp
 			}
 			catch (Exception ex)
 			{
-				return ResponseData<bool>.CreateFaultyResponse("UnexpectedError", ex, statusCode: (int)HttpStatusCode.InternalServerError);
+				return ResponseData<bool>.CreateInternalServerError("UnexpectedError", ex);
 			}
 		}
 
@@ -137,7 +137,7 @@ namespace Eshava.Core.Communication.Ftp
 			}
 			catch (Exception ex)
 			{
-				return ResponseData<IEnumerable<string>>.CreateFaultyResponse("UnexpectedError", ex, statusCode: (int)HttpStatusCode.InternalServerError);
+				return ResponseData<IEnumerable<string>>.CreateInternalServerError("UnexpectedError", ex);
 			}
 		}
 

@@ -26,11 +26,14 @@ namespace Eshava.Test.Core.Communication.Http
 			_classUnderTest = new RestHttpClient(new Uri("https://eshava.de/"), httpClient: _httpClient);
 		}
 
-		[TestMethod, ExpectedException(typeof(ArgumentNullException))]
+		[TestMethod]
 		public void GetSegementParameterNameWithNullInputTest()
 		{
-			// Act
-			_classUnderTest.GetSegementParameterName(null);
+			Assert.Throws<ArgumentNullException>(() =>
+			{
+				// Act
+				_classUnderTest.GetSegementParameterName(null);
+			});
 		}
 
 		[TestMethod]
@@ -121,16 +124,19 @@ namespace Eshava.Test.Core.Communication.Http
 			result.Method.Should().Be(HttpMethod.Delete);
 		}
 
-		[TestMethod, ExpectedException(typeof(AggregateException))]
+		[TestMethod]
 		public void SendWithInvalidHttpMethodTest()
 		{
-			// Arrange
-			var request = new HttpRequest("data", new HttpMethod("DarkwingDuck"));
+			Assert.Throws<AggregateException>(() =>
+			{
+				// Arrange
+				var request = new HttpRequest("data", new HttpMethod("DarkwingDuck"));
 
-			// Act
-			var task = _classUnderTest.SendAsync(request);
-			task.Exception.InnerException.GetType().Should().Be(typeof(NotSupportedException));
-			task.Wait();
+				// Act
+				var task = _classUnderTest.SendAsync(request);
+				task.Exception.InnerException.GetType().Should().Be(typeof(NotSupportedException));
+				task.Wait();
+			});
 		}
 
 		[TestMethod]

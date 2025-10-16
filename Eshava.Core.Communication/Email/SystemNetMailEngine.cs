@@ -79,7 +79,7 @@ namespace Eshava.Core.Communication.Email
 			}
 			catch (Exception ex)
 			{
-				return ResponseData<bool>.CreateFaultyResponse("UnexpectedError", ex, statusCode: (int)HttpStatusCode.InternalServerError);
+				return ResponseData<bool>.CreateInternalServerError("UnexpectedError", ex);
 			}
 		}
 
@@ -151,14 +151,8 @@ namespace Eshava.Core.Communication.Email
 			{
 				if (_settings.FallbackReceiverEmailAddress.IsNullOrEmpty())
 				{
-					return ResponseData<bool>.CreateFaultyResponse("INVALIDDATA", validationErrors: new List<ValidationError>
-					{
-						new ValidationError
-						{
-							PropertyName = nameof(EmailData.Recipients),
-							ErrorType = "Required"
-						}
-					});
+					return ResponseData<bool>.CreateInvalidDataResponse()
+						.AddValidationError(nameof(EmailData.Recipients), "Required");
 				}
 
 				recipients.Add(_settings.FallbackReceiverEmailAddress);
