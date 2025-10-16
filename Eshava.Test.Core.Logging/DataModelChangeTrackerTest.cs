@@ -217,27 +217,33 @@ namespace Eshava.Test.Core.Logging
 		}
 
 		[TestMethod]
-		[ExpectedException(typeof(ArgumentNullException))]
 		public void CreateInsertLogsDataRecordIsNullTest()
 		{
 			// Act
-			_classUnderTest.CreateInsertLogs<DataRecord>(null, 1, 2);
+			Assert.Throws<ArgumentNullException>(() =>
+			{
+				_classUnderTest.CreateInsertLogs<DataRecord>(null, 1, 2);
+			});
 		}
 
 		[TestMethod]
-		[ExpectedException(typeof(ArgumentNullException))]
 		public void CreateUpdateLogsDataRecordIsNullTest()
 		{
 			// Act
-			_classUnderTest.CreateUpdateLogs(null, new DataRecord(), 1, 2);
+			Assert.Throws<ArgumentNullException>(() =>
+			{
+				_classUnderTest.CreateUpdateLogs(null, new DataRecord(), 1, 2);
+			});
 		}
 
 		[TestMethod]
-		[ExpectedException(typeof(ArgumentNullException))]
 		public void CreateUpdateLogsDataRecordToCompareIsNullTest()
 		{
 			// Act
-			_classUnderTest.CreateUpdateLogs(new DataRecord(), null, 1, 2);
+			Assert.Throws<ArgumentNullException>(() =>
+			{
+				_classUnderTest.CreateUpdateLogs(new DataRecord(), null, 1, 2);
+			});			
 		}
 	}
 }

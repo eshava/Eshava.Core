@@ -11,7 +11,7 @@ namespace Eshava.Test.Core.Logging
 	public class DatabaseChangeTrackerTest
 	{
 		private DatabaseChangeTracker<int> _classUnderTest;
-		
+
 		[TestInitialize]
 		public void Setup()
 		{
@@ -119,7 +119,7 @@ namespace Eshava.Test.Core.Logging
 			};
 
 			// Act
-			var logs = _classUnderTest.CreateUpdateLogs(dataRecord, dataRecordToCompare,  dataRecord.Id, 2);
+			var logs = _classUnderTest.CreateUpdateLogs(dataRecord, dataRecordToCompare, dataRecord.Id, 2);
 
 			// Assert
 			logs.Should().HaveCount(1);
@@ -185,51 +185,63 @@ namespace Eshava.Test.Core.Logging
 		}
 
 		[TestMethod]
-		[ExpectedException(typeof(Exception))]
 		public void CreateInsertLogsNoTableAttributeTest()
 		{
-			// Act
-			_classUnderTest.CreateInsertLogs(new Alpha(), 1, 2);
+			Assert.Throws<Exception>(() =>
+			{
+				// Act
+				_classUnderTest.CreateInsertLogs(new Alpha(), 1, 2);
+			});
 		}
 
 		[TestMethod]
-		[ExpectedException(typeof(Exception))]
 		public void CreateUpdateLogsNoTableAttributeTest()
 		{
-			// Act
-			_classUnderTest.CreateUpdateLogs(new Alpha(), new Alpha(), 1, 2);
+			Assert.Throws<Exception>(() =>
+			{
+				// Act
+				_classUnderTest.CreateUpdateLogs(new Alpha(), new Alpha(), 1, 2);
+			});
 		}
 
 		[TestMethod]
-		[ExpectedException(typeof(Exception))]
 		public void CreateDeleteLogNoTableAttributeTest()
 		{
-			// Act
-			_classUnderTest.CreateDeleteLog<Alpha>(1, 2);
+			Assert.Throws<Exception>(() =>
+			{
+				// Act
+				_classUnderTest.CreateDeleteLog<Alpha>(1, 2);
+			});
 		}
 
 		[TestMethod]
-		[ExpectedException(typeof(ArgumentNullException))]
 		public void CreateInsertLogsDataRecordIsNullTest()
 		{
-			// Act
-			_classUnderTest.CreateInsertLogs<DataRecord>(null, 1, 2);
+			Assert.Throws<ArgumentNullException>(() =>
+			{
+				// Act
+				_classUnderTest.CreateInsertLogs<DataRecord>(null, 1, 2);
+			});
 		}
 
 		[TestMethod]
-		[ExpectedException(typeof(ArgumentNullException))]
 		public void CreateUpdateLogsDataRecordIsNullTest()
 		{
-			// Act
-			_classUnderTest.CreateUpdateLogs(null, new DataRecord(), 1, 2);
+			Assert.Throws<ArgumentNullException>(() =>
+			{
+				// Act
+				_classUnderTest.CreateUpdateLogs(null, new DataRecord(), 1, 2);
+			});
 		}
 
 		[TestMethod]
-		[ExpectedException(typeof(ArgumentNullException))]
 		public void CreateUpdateLogsDataRecordToCompareIsNullTest()
 		{
-			// Act
-			_classUnderTest.CreateUpdateLogs(new DataRecord(), null, 1, 2);
+			Assert.Throws<ArgumentNullException>(() =>
+			{
+				// Act
+				_classUnderTest.CreateUpdateLogs(new DataRecord(), null, 1, 2);
+			});
 		}
 	}
 }

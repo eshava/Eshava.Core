@@ -322,37 +322,39 @@ namespace Eshava.Test.Core.Logging
 		}
 
 		[TestMethod]
-		[ExpectedException(typeof(NotSupportedException))]
 		public void ConvertThrowExceptionForNotSupportedDataTypeTest()
 		{
-			// Arrange
-			var properties = new List<DataRecordLogProperty<int>>
+			Assert.Throws<NotSupportedException>(() =>
 			{
-				new DataRecordLogProperty<int>
+				// Arrange
+				var properties = new List<DataRecordLogProperty<int>>
 				{
-					Action = DataRecordAction.Insert,
-					DataRecordId = 1,
-					DataRecordParentId = 11,
-					PropertyName = nameof(Alpha.Epsilon),
-					DataRecordName = nameof(Alpha),
-					DataType = typeof(LogInformationDto),
-					LogEntryGroupId = 888,
-					UserId = 999,
-					Value = new LogInformationDto { Message = "MegaVolt" },
-					TimestampUtc = DateTime.Today
-				}
-			};
+					new DataRecordLogProperty<int>
+					{
+						Action = DataRecordAction.Insert,
+						DataRecordId = 1,
+						DataRecordParentId = 11,
+						PropertyName = nameof(Alpha.Epsilon),
+						DataRecordName = nameof(Alpha),
+						DataType = typeof(LogInformationDto),
+						LogEntryGroupId = 888,
+						UserId = 999,
+						Value = new LogInformationDto { Message = "MegaVolt" },
+						TimestampUtc = DateTime.Today
+					}
+				};
 
-			var settings = new DataRecordLogSettings
-			{
-				EnumAsString = true,
-				UnsupportedDataTypeAction = UnsupportedDataTypeAction.ThrowExeception
-			};
+				var settings = new DataRecordLogSettings
+				{
+					EnumAsString = true,
+					UnsupportedDataTypeAction = UnsupportedDataTypeAction.ThrowExeception
+				};
 
-			var classUnderTest = new DataRecordLogEngine(settings);
+				var classUnderTest = new DataRecordLogEngine(settings);
 
-			// Act
-			classUnderTest.Convert(properties);
+				// Act
+				classUnderTest.Convert(properties);
+			});
 		}
 
 		[TestMethod]
