@@ -31,18 +31,24 @@ namespace Eshava.Test.Core.IO
 			CleanUpTestBed();
 		}
 
-		[TestMethod, ExpectedException(typeof(ArchiveException))]
+		[TestMethod]
 		public void CreateArchiveFromDirectorNoArchivePathTest()
 		{
-			// Act
-			_classUnderTest.CreateArchive(null, null, CompressionLevel.Optimal, false);
+			Assert.Throws<ArchiveException>(() =>
+			{
+				// Act
+				_classUnderTest.CreateArchive(null, null, CompressionLevel.Optimal, false);
+			});
 		}
 
-		[TestMethod, ExpectedException(typeof(NotSupportedException))]
+		[TestMethod]
 		public void CreateArchiveFromDirectoryWrongArchiveTypeTest()
 		{
-			// Act
-			_classUnderTest.CreateArchive(null, Path.Combine(Path.GetTempPath(), "Archive.7z"), CompressionLevel.Optimal, false);
+			Assert.Throws<NotSupportedException>(() =>
+			{
+				// Act
+				_classUnderTest.CreateArchive(null, Path.Combine(Path.GetTempPath(), "Archive.7z"), CompressionLevel.Optimal, false);
+			});
 		}
 
 		[TestMethod]
@@ -188,14 +194,17 @@ namespace Eshava.Test.Core.IO
 			// Avoid mess
 			CleanUpTestBed(sourcePath, targetPath);
 		}
-		
-		[TestMethod, ExpectedException(typeof(NotSupportedException))]
+
+		[TestMethod]
 		public void CreateArchiveWrongArchiveTypeTest()
 		{
-			// Act
-			_classUnderTest.CreateArchive(Path.Combine(Path.GetTempPath(), "Archive.7z"), Array.Empty<(string source, string target)>());
+			Assert.Throws<NotSupportedException>(() =>
+			{
+				// Act
+				_classUnderTest.CreateArchive(Path.Combine(Path.GetTempPath(), "Archive.7z"), Array.Empty<(string source, string target)>());
+			});
 		}
-		
+
 		[TestMethod]
 		public void CreateArchiveWithExistingTargetArchiveTest()
 		{
@@ -228,18 +237,24 @@ namespace Eshava.Test.Core.IO
 			CleanUpTestBed(sourcePath, targetPath);
 		}
 
-		[TestMethod, ExpectedException(typeof(NotSupportedException))]
+		[TestMethod]
 		public void UpdateArchiveWrongArchiveTypeTest()
 		{
-			// Act
-			_classUnderTest.UpdateArchive(Path.Combine(Path.GetTempPath(), "Archive.7z"), Array.Empty<(string source, string target)>());
+			Assert.Throws<NotSupportedException>(() =>
+			{
+				// Act
+				_classUnderTest.UpdateArchive(Path.Combine(Path.GetTempPath(), "Archive.7z"), Array.Empty<(string source, string target)>());
+			});
 		}
 
-		[TestMethod, ExpectedException(typeof(ArchiveException))]
+		[TestMethod]
 		public void UpdateArchiveMissingArchiveTest()
 		{
-			// Act
-			_classUnderTest.UpdateArchive(Path.Combine(Path.GetTempPath(), "Archive.zip"), Array.Empty<(string source, string target)>());
+			Assert.Throws<ArchiveException>(() =>
+			{
+				// Act
+				_classUnderTest.UpdateArchive(Path.Combine(Path.GetTempPath(), "Archive.zip"), Array.Empty<(string source, string target)>());
+			});
 		}
 
 		[TestMethod]
@@ -274,18 +289,24 @@ namespace Eshava.Test.Core.IO
 			CleanUpTestBed(sourcePath, targetPath);
 		}
 
-		[TestMethod, ExpectedException(typeof(NotSupportedException))]
+		[TestMethod]
 		public void ExtractArchiveWrongArchiveTypeTest()
 		{
-			// Act
-			_classUnderTest.ExtractArchive(Path.Combine(Path.GetTempPath(), "Archive.7z"), null);
+			Assert.Throws<NotSupportedException>(() =>
+			{
+				// Act
+				_classUnderTest.ExtractArchive(Path.Combine(Path.GetTempPath(), "Archive.7z"), null);
+			});
 		}
 
-		[TestMethod, ExpectedException(typeof(ArchiveException))]
+		[TestMethod]
 		public void ExtractArchiveMissingArchiveTest()
 		{
-			// Act
-			_classUnderTest.ExtractArchive(Path.Combine(Path.GetTempPath(), "Archive.zip"), null);
+			Assert.Throws<ArchiveException>(() =>
+			{
+				// Act
+				_classUnderTest.ExtractArchive(Path.Combine(Path.GetTempPath(), "Archive.zip"), null);
+			});
 		}
 
 		[TestMethod]
@@ -338,11 +359,14 @@ namespace Eshava.Test.Core.IO
 			return (sourceDirectory, targetDirectory);
 		}
 
-		[TestMethod, ExpectedException(typeof(NotSupportedException))]
+		[TestMethod]
 		public void ReadFullFileNamesWrongArchiveTypeTest()
 		{
-			// Act
-			_classUnderTest.ReadFullFileNames(Path.Combine(Path.GetTempPath(), "Archive.7z"));
+			Assert.Throws<NotSupportedException>(() =>
+			{
+				// Act
+				_classUnderTest.ReadFullFileNames(Path.Combine(Path.GetTempPath(), "Archive.7z"));
+			});
 		}
 
 		[TestMethod]
@@ -364,11 +388,14 @@ namespace Eshava.Test.Core.IO
 			CleanUpTestBed(sourcePath, targetPath);
 		}
 
-		[TestMethod, ExpectedException(typeof(ArchiveException))]
+		[TestMethod]
 		public void ReadFullFileNamesMissingArchiveTest()
 		{
-			// Act
-			_classUnderTest.ReadFullFileNames(Path.Combine(Path.GetTempPath(), "Archive.zip"));
+			Assert.Throws<ArchiveException>(() =>
+			{
+				// Act
+				_classUnderTest.ReadFullFileNames(Path.Combine(Path.GetTempPath(), "Archive.zip"));
+			});
 		}
 
 		private static void CleanUpTestBed(string sourceDirectoryPath, string targetDirectoryPath)
