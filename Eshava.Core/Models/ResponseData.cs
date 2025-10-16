@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using Newtonsoft.Json;
 
 namespace Eshava.Core.Models
 {
 	public class ResponseData<T>
 	{
+		private string _rawMessage;
+
 		public ResponseData()
 		{
 			StatusCode = (int)HttpStatusCode.OK;
@@ -32,32 +33,31 @@ namespace Eshava.Core.Models
 
 		public Guid? MessageGuid { get; private set; }
 
-		[JsonIgnore]
-		public string RawMessage { get; private set; }
-
-		[JsonIgnore]
-		public Exception Exception { get; private set; }
-
 		public IEnumerable<ValidationError> ValidationErrors { get; private set; }
 
 		public int StatusCode { get; private set; }
+
+		public string GetRawMessage()
+		{
+			return _rawMessage;
+		}
 
 		/// <summary>
 		/// Copies the data of this faulty response data instance into a new instance of a different type
 		/// </summary>
 		/// <typeparam name="U"></typeparam>
+		/// <param name="messageGuid"></param>
 		/// <returns></returns>
-		public ResponseData<U> ConvertTo<U>()
+		public ResponseData<U> ConvertTo<U>(Guid? messageGuid = null)
 		{
 			return new ResponseData<U>
 			{
-				IsFaulty = IsFaulty,
+				IsFaulty = true,
+				MessageGuid = MessageGuid ?? messageGuid,
 				Message = Message,
-				MessageGuid = MessageGuid,
-				RawMessage = RawMessage,
-				Exception = Exception,
-				StatusCode = StatusCode,
 				ValidationErrors = ValidationErrors,
+				StatusCode = StatusCode,
+				_rawMessage = _rawMessage
 			};
 		}
 
@@ -68,10 +68,25 @@ namespace Eshava.Core.Models
 		/// <returns></returns>
 		public ResponseData<T> AddValidationError(ValidationError validationError)
 		{
-			var validationErrors = ValidationErrors?.ToList() ?? [];
-			validationErrors.Add(validationError);
+			var errors = ValidationErrors?.ToList() ?? [];
+			errors.Add(validationError);
 
-			ValidationErrors = validationErrors;
+			ValidationErrors = errors;
+
+			return this;
+		}
+
+		/// <summary>
+		/// Adds validation errors to the current response data instance
+		/// </summary>
+		/// <param name="validationErrors"></param>
+		/// <returns></returns>
+		public ResponseData<T> AddValidationErrors(IEnumerable<ValidationError> validationErrors)
+		{
+			var errors = ValidationErrors?.ToList() ?? [];
+			errors.AddRange(validationErrors);
+
+			ValidationErrors = errors;
 
 			return this;
 		}
@@ -97,6 +112,18 @@ namespace Eshava.Core.Models
 		}
 
 		/// <summary>
+		/// Adds a raw message
+		/// </summary>
+		/// <param name="rawMessage"></param>
+		/// <returns></returns>
+		public ResponseData<T> AddRawMessage(string rawMessage)
+		{
+			_rawMessage = rawMessage;
+
+			return this;
+		}
+
+		/// <summary>
 		/// Creates a faulty response data instance
 		/// </summary>
 		/// <param name="message"></param>
@@ -104,6 +131,7 @@ namespace Eshava.Core.Models
 		/// <param name="statusCode"></param>
 		/// <param name="messageGuid"></param>
 		/// <returns></returns>
+		[Obsolete]
 		public static ResponseData<T> CreateFaultyResponse(string message, IEnumerable<ValidationError> validationErrors = null, int statusCode = (int)HttpStatusCode.BadRequest, Guid? messageGuid = null)
 		{
 			return new ResponseData<T>
@@ -125,6 +153,7 @@ namespace Eshava.Core.Models
 		/// <param name="statusCode"></param>
 		/// <param name="messageGuid"></param>
 		/// <returns></returns>
+		[Obsolete]
 		public static ResponseData<T> CreateFaultyResponse(string message, string rawMessage, IEnumerable<ValidationError> validationErrors = null, int statusCode = (int)HttpStatusCode.BadRequest, Guid? messageGuid = null)
 		{
 			return new ResponseData<T>
@@ -132,7 +161,7 @@ namespace Eshava.Core.Models
 				IsFaulty = true,
 				Message = message,
 				MessageGuid = messageGuid,
-				RawMessage = rawMessage,
+				_rawMessage = rawMessage,
 				StatusCode = statusCode,
 				ValidationErrors = validationErrors
 			};
@@ -147,6 +176,7 @@ namespace Eshava.Core.Models
 		/// <param name="statusCode"></param>
 		/// <param name="messageGuid"></param>
 		/// <returns></returns>
+		[Obsolete]
 		public static ResponseData<T> CreateFaultyResponse(string message, Exception exception, IEnumerable<ValidationError> validationErrors = null, int statusCode = (int)HttpStatusCode.InternalServerError, Guid? messageGuid = null)
 		{
 			return new ResponseData<T>
@@ -154,11 +184,21 @@ namespace Eshava.Core.Models
 				IsFaulty = true,
 				Message = message,
 				MessageGuid = messageGuid,
-				RawMessage = exception.Message,
-				Exception = exception,
+				_rawMessage = exception.Message,
 				StatusCode = statusCode,
 				ValidationErrors = validationErrors
 			};
+		}
+
+		/// <summary>
+		/// Creates a faulty response data with status code <see cref="HttpStatusCode.BadRequest"/>.
+		/// </summary>
+		/// <param name="message"></param>
+		/// <param name="messageGuid"></param>
+		/// <returns></returns>
+		public static ResponseData<T> CreateFaultyResponse(string message, Guid? messageGuid = null, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
+		{
+			return CreateFaultyResponse(message, statusCode, messageGuid);
 		}
 
 		/// <summary>
@@ -170,30 +210,62 @@ namespace Eshava.Core.Models
 		/// <returns></returns>
 		public static ResponseData<T> CreateInternalServerError(string message, Exception exception, Guid? messageGuid = null)
 		{
-			return CreateFaultyResponse(message, exception, statusCode: (int)HttpStatusCode.InternalServerError, messageGuid: messageGuid);
+			var responseData = CreateFaultyResponse(message, HttpStatusCode.InternalServerError, messageGuid);
+
+			if (exception is not null)
+			{
+				responseData.AddRawMessage(exception.Message);
+			}
+
+			return responseData;
 		}
 
 		/// <summary>
-		/// Copies the data of a faulty response data instance into a new instance of a different type
+		/// Creates a response data with message <see cref="MessageConstants.NOTEXISTING"/> and status code <see cref="HttpStatusCode.NotFound"/>
 		/// </summary>
-		/// <typeparam name="T1"></typeparam>
-		/// <param name="responseData"></param>
-		/// <param name="validationErrors">Override data of <paramref name="responseData"/></param>
-		/// <param name="statusCode">Override data of <paramref name="responseData"/></param>
-		/// <param name="messageGuid">Override data of <paramref name="responseData"/></param>
+		/// <param name="messageGuid"></param>
 		/// <returns></returns>
-		public static ResponseData<T> CreateFaultyResponse<T1>(ResponseData<T1> responseData, IEnumerable<ValidationError> validationErrors = null, int? statusCode = null, Guid? messageGuid = null)
+		public static ResponseData<T> CreateNotExistingResponse(Guid? messageGuid = null)
+		{
+			return CreateFaultyResponse(MessageConstants.NOTEXISTING, HttpStatusCode.NotFound, messageGuid);
+		}
+
+		/// <summary>
+		/// Creates a response data with message <see cref="MessageConstants.INVALIDDATA"/> and status code <see cref="HttpStatusCode.BadRequest"/>
+		/// </summary>
+		/// <param name="messageGuid"></param>
+		/// <returns></returns>
+		public static ResponseData<T> CreateInvalidDataResponse(Guid? messageGuid = null)
+		{
+			return CreateFaultyResponse(MessageConstants.INVALIDDATA, HttpStatusCode.BadRequest, messageGuid);
+		}
+
+		/// <summary>
+		/// Creates a response data with message <see cref="MessageConstants.IMMUTABLE"/> and status code <see cref="HttpStatusCode.BadRequest"/>
+		/// </summary>
+		/// <param name="messageGuid"></param>
+		/// <returns></returns>
+		public static ResponseData<T> CreateImmutable(Guid? messageGuid = null)
+		{
+			return CreateFaultyResponse(MessageConstants.IMMUTABLE, HttpStatusCode.BadRequest, messageGuid);
+		}
+
+		private static ResponseData<T> CreateFaultyResponse(string message, HttpStatusCode statusCode, Guid? messageGuid)
 		{
 			return new ResponseData<T>
 			{
 				IsFaulty = true,
-				Message = responseData.Message,
-				MessageGuid = messageGuid ?? responseData.MessageGuid,
-				RawMessage = responseData.RawMessage,
-				Exception = responseData.Exception,
-				StatusCode = statusCode ?? responseData.StatusCode,
-				ValidationErrors = validationErrors ?? responseData.ValidationErrors
+				Message = message,
+				MessageGuid = messageGuid,
+				StatusCode = (int)statusCode
 			};
+		}
+
+		private static class MessageConstants
+		{
+			public const string IMMUTABLE = "Immutable";
+			public const string INVALIDDATA = "InvalidData";
+			public const string NOTEXISTING = "NotExisting";
 		}
 	}
 }

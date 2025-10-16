@@ -1,11 +1,29 @@
 ﻿using System.Collections;
 using System.Linq;
+using System.Net;
 using System.Reflection;
+using System.Threading.Tasks;
+using Eshava.Core.Models;
 
 namespace Eshava.Core.Extensions
 {
 	public static class ObjectExtension
 	{
+		public static Task<T> ToTask<T>(this T data)
+		{
+			return Task.FromResult(data);
+		}
+
+		public static ResponseData<T> ToResponseData<T>(this T data, HttpStatusCode statusCode = HttpStatusCode.OK)
+		{
+			return new ResponseData<T>(data, statusCode);
+		}
+
+		public static Task<ResponseData<T>> ToResponseDataAsync<T>(this T data, HttpStatusCode statusCode = HttpStatusCode.OK)
+		{
+			return Task.FromResult(data.ToResponseData(statusCode));
+		}
+
 		public static object ReplaceEmptyStringsToNull(this object model)
 		{
 			if (model == null)
