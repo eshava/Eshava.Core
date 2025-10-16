@@ -38,7 +38,7 @@ namespace Eshava.Core.Linq
 
 			if (filter == null)
 			{
-				return ResponseData<IEnumerable<Expression<Func<T, bool>>>>.CreateFaultyResponse(MessageConstants.INVALIDINPUT);
+				return ResponseData<IEnumerable<Expression<Func<T, bool>>>>.CreateInvalidDataResponse();
 			}
 
 			var whereQueryProperties = new List<WhereQueryProperty>();
@@ -93,7 +93,8 @@ namespace Eshava.Core.Linq
 
 			if (invalidFilterFields.Count > 0)
 			{
-				return ResponseData<IEnumerable<Expression<Func<T, bool>>>>.CreateFaultyResponse(MessageConstants.INVALIDFILTER, validationErrors: invalidFilterFields);
+				return ResponseData<IEnumerable<Expression<Func<T, bool>>>>.CreateInvalidDataResponse()
+					.AddValidationErrors(invalidFilterFields);
 			}
 
 			return BuildQueryExpressions(whereQueryProperties, globalSearchTerm, mappings, options);
@@ -115,7 +116,7 @@ namespace Eshava.Core.Linq
 		{
 			if (queryParameters == null)
 			{
-				return ResponseData<IEnumerable<Expression<Func<T, bool>>>>.CreateFaultyResponse(MessageConstants.INVALIDINPUT);
+				return ResponseData<IEnumerable<Expression<Func<T, bool>>>>.CreateInvalidDataResponse();
 			}
 
 			var where = new List<Expression<Func<T, bool>>>();
@@ -416,7 +417,7 @@ namespace Eshava.Core.Linq
 					return new ResponseData<IList<Expression<Func<T, bool>>>>(new List<Expression<Func<T, bool>>>());
 				}
 
-				return ResponseData<IList<Expression<Func<T, bool>>>>.CreateFaultyResponse(MessageConstants.INVALIDDATA)
+				return ResponseData<IList<Expression<Func<T, bool>>>>.CreateInvalidDataResponse()
 					.AddValidationError(property.PropertyName, MessageConstants.INVALIDPROPERTYMAPPING);
 			}
 
@@ -427,7 +428,7 @@ namespace Eshava.Core.Linq
 					return new ResponseData<IList<Expression<Func<T, bool>>>>(new List<Expression<Func<T, bool>>>());
 				}
 
-				return ResponseData<IList<Expression<Func<T, bool>>>>.CreateFaultyResponse(MessageConstants.INVALIDDATA)
+				return ResponseData<IList<Expression<Func<T, bool>>>>.CreateInvalidDataResponse()
 					.AddValidationError(property.PropertyName, MessageConstants.INVALIDPROPERTYMAPPINGTYPE);
 			}
 
@@ -479,7 +480,8 @@ namespace Eshava.Core.Linq
 
 			if (validationErrors.Count > 0)
 			{
-				return ResponseData<IList<Expression<Func<T, bool>>>>.CreateFaultyResponse(MessageConstants.INVALIDDATA, validationErrors: validationErrors);
+				return ResponseData<IList<Expression<Func<T, bool>>>>.CreateInvalidDataResponse()
+					.AddValidationErrors(validationErrors);
 			}
 
 			return new ResponseData<IList<Expression<Func<T, bool>>>>(expressions);
@@ -495,7 +497,7 @@ namespace Eshava.Core.Linq
 					return new ResponseData<IEnumerable<Expression<Func<T, bool>>>>(new List<Expression<Func<T, bool>>>());
 				}
 
-				return ResponseData<IEnumerable<Expression<Func<T, bool>>>>.CreateFaultyResponse(MessageConstants.INVALIDDATA)
+				return ResponseData<IEnumerable<Expression<Func<T, bool>>>>.CreateInvalidDataResponse()
 					.AddValidationError(property.PropertyName, MessageConstants.INVALIDPROPERTY);
 			}
 
@@ -552,7 +554,8 @@ namespace Eshava.Core.Linq
 
 			if (validationErrors.Count > 0)
 			{
-				return ResponseData<IEnumerable<Expression<Func<T, bool>>>>.CreateFaultyResponse(MessageConstants.INVALIDDATA, validationErrors: validationErrors);
+				return ResponseData<IEnumerable<Expression<Func<T, bool>>>>.CreateInvalidDataResponse()
+					.AddValidationErrors(validationErrors);
 			}
 
 			return new ResponseData<IEnumerable<Expression<Func<T, bool>>>>(expressions);
@@ -569,27 +572,14 @@ namespace Eshava.Core.Linq
 		{
 			if (data.ConstantValue == null && !(data.Member.Type == TypeConstants.String || data.Member.Type.IsDataTypeNullable()))
 			{
-				return ResponseData<Expression<Func<T, bool>>>.CreateFaultyResponse(MessageConstants.INVALIDDATA, validationErrors: new List<ValidationError>
-				{
-					new ValidationError
-					{
-						PropertyName = data.Member.Member.Name,
-						ErrorType = MessageConstants.INVALIDFILTERVALUE
-					}
-				});
+				return ResponseData<Expression<Func<T, bool>>>.CreateInvalidDataResponse()
+					.AddValidationError(data.Member.Member.Name, MessageConstants.INVALIDFILTERVALUE);
 			}
 
 			if (!data.Operator.ExistsOperation())
 			{
-				return ResponseData<Expression<Func<T, bool>>>.CreateFaultyResponse(MessageConstants.INVALIDDATA, validationErrors: new List<ValidationError>
-				{
-					new ValidationError
-					{
-						PropertyName = data.Member.Member.Name,
-						Value = data.Operator.ToString(),
-						ErrorType = MessageConstants.INVALIDOPERATOR
-					}
-				});
+				return ResponseData<Expression<Func<T, bool>>>.CreateInvalidDataResponse()
+					.AddValidationError(data.Member.Member.Name, MessageConstants.INVALIDOPERATOR, data.Operator.ToString());
 			}
 
 			if (data.Member.Type.IsEnum && data.Operator.ExistsExpressionType())
@@ -610,7 +600,7 @@ namespace Eshava.Core.Linq
 			}
 			catch (Exception ex)
 			{
-				return ResponseData<Expression<Func<T, bool>>>.CreateFaultyResponse(MessageConstants.INVALIDDATA, rawMessage: ex.Message)
+				return ResponseData<Expression<Func<T, bool>>>.CreateInternalServerError(MessageConstants.INVALIDDATA, ex)
 					.AddValidationError(data.Member.Member.Name, MessageConstants.INVALIDFILTERVALUE, data.Operator);
 			}
 

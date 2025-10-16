@@ -30,14 +30,14 @@ namespace Eshava.Core.Linq
 				};
 			}
 
-			return ResponseData<OrderByCondition>.CreateFaultyResponse(MessageConstants.INVALIDINPUT);
+			return ResponseData<OrderByCondition>.CreateInvalidDataResponse();
 		}
 
 		public ResponseData<IEnumerable<OrderByCondition>> BuildSortConditions<T>(object sortings, Dictionary<string, List<Expression<Func<T, object>>>> mappings = null) where T : class
 		{
 			if (sortings == null)
 			{
-				return ResponseData<IEnumerable<OrderByCondition>>.CreateFaultyResponse(MessageConstants.INVALIDINPUT);
+				return ResponseData<IEnumerable<OrderByCondition>>.CreateInvalidDataResponse();
 			}
 
 			var sortFields = new List<(string Property, SortField field)>();
@@ -73,7 +73,7 @@ namespace Eshava.Core.Linq
 		{
 			if (queryParameters == null)
 			{
-				return ResponseData<IEnumerable<OrderByCondition>>.CreateFaultyResponse(MessageConstants.INVALIDINPUT);
+				return ResponseData<IEnumerable<OrderByCondition>>.CreateInvalidDataResponse();
 			}
 
 			if (!(queryParameters.SortingQueryProperties?.Any() ?? false))
@@ -88,7 +88,7 @@ namespace Eshava.Core.Linq
 		{
 			if (sortingQueryProperties == null)
 			{
-				return ResponseData<IEnumerable<OrderByCondition>>.CreateFaultyResponse(MessageConstants.INVALIDINPUT);
+				return ResponseData<IEnumerable<OrderByCondition>>.CreateInvalidDataResponse();
 			}
 
 			var sortingConditions = new List<OrderByCondition>();

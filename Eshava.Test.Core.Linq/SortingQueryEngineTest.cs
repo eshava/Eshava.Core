@@ -33,11 +33,14 @@ namespace Eshava.Test.Core.Linq
 			result.Message.Should().Be("InvalidInput");
 		}
 
-		[TestMethod, ExpectedException(typeof(NullReferenceException))]
+		[TestMethod]
 		public void BuildSortConditionNUllExpressionTest()
 		{
-			// Act
-			_classUnderTest.BuildSortCondition<Alpha>(SortOrder.Ascending, null);
+			Assert.Throws<NullReferenceException>(() =>
+			{
+				// Act
+				_classUnderTest.BuildSortCondition<Alpha>(SortOrder.Ascending, null);
+			});
 		}
 
 		[TestMethod]
@@ -194,11 +197,14 @@ namespace Eshava.Test.Core.Linq
 			result.Should().BeNull();
 		}
 
-		[TestMethod, ExpectedException(typeof(ArgumentNullException))]
+		[TestMethod]
 		public void ApplySortingNullQueryTest()
 		{
-			// Act
-			_classUnderTest.ApplySorting<Alpha>(null, new List<OrderByCondition> { new OrderByCondition() });
+			Assert.Throws<ArgumentNullException>(() =>
+			{
+				// Act
+				_classUnderTest.ApplySorting<Alpha>(null, new List<OrderByCondition> { new OrderByCondition() });
+			});
 		}
 
 		[TestMethod]

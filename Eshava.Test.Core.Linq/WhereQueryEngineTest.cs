@@ -272,7 +272,7 @@ namespace Eshava.Test.Core.Linq
 			propertyCountQueryIgnore.Should().Be(1);
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(false, DisplayName = "Deactivated split option")]
 		[DataRow(true, DisplayName = "Activated split option")]
 		public void BuildQueryExpressionsGlobalSearchTermWithSplitContainsOptionTest(bool containsSearchSplitBySpace)
@@ -326,7 +326,7 @@ namespace Eshava.Test.Core.Linq
 			propertyCountQueryIgnore.Should().Be(1);
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(false, DisplayName = "Deactivated split option")]
 		[DataRow(true, DisplayName = "Activated split option")]
 		public void BuildQueryExpressionsGlobalSearchTermWithSplitContainsOptionCaseInsensitiveOneTest(bool containsSearchSplitBySpace)
@@ -385,7 +385,7 @@ namespace Eshava.Test.Core.Linq
 			propertyCountQueryIgnore.Should().Be(1);
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(false, DisplayName = "Deactivated split option")]
 		[DataRow(true, DisplayName = "Activated split option")]
 		public void BuildQueryExpressionsGlobalSearchTermWithSplitContainsOptionCaseInsensitiveTwoTest(bool containsSearchSplitBySpace)
@@ -1665,7 +1665,7 @@ namespace Eshava.Test.Core.Linq
 			resultWhere.Should().HaveCount(0);
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(false, DisplayName = "Deactivated split option")]
 		[DataRow(true, DisplayName = "Activated split option")]
 		public void BuildQueryExpressionsStringPropertyWithSplitContainsOptionTest(bool containsSearchSplitBySpace)
@@ -1729,7 +1729,7 @@ namespace Eshava.Test.Core.Linq
 			}
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(false, DisplayName = "Deactivated split option")]
 		[DataRow(true, DisplayName = "Activated split option")]
 		public void BuildQueryExpressionsStringPropertyWithSplitContainsOptionCaseInsensitiveOneTest(bool containsSearchSplitBySpace)
@@ -1798,7 +1798,7 @@ namespace Eshava.Test.Core.Linq
 			}
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(false, DisplayName = "Deactivated split option")]
 		[DataRow(true, DisplayName = "Activated split option")]
 		public void BuildQueryExpressionsStringPropertyWithSplitContainsOptionCaseInsensitiveTwoTest(bool containsSearchSplitBySpace)
@@ -3240,18 +3240,20 @@ namespace Eshava.Test.Core.Linq
 		}
 
 		[TestMethod]
-		[ExpectedException(typeof(NullReferenceException))]
 		public void RemovePropertyMappingsNoPropertiesTest()
 		{
-			// Arrange
-			var mappings = new Dictionary<string, List<Expression<Func<Alpha, object>>>>
+			Assert.Throws<NullReferenceException>(() =>
 			{
-				{ nameof(Alpha.Chi), new List< Expression<Func<Alpha, object>>>{ p => p.Kappa.Psi } },
-				{ nameof(Alpha.Delta), new List< Expression<Func<Alpha, object>>>{ p => p.DeltaTwo } },
-			};
+				// Arrange
+				var mappings = new Dictionary<string, List<Expression<Func<Alpha, object>>>>
+				{
+					{ nameof(Alpha.Chi), new List< Expression<Func<Alpha, object>>>{ p => p.Kappa.Psi } },
+					{ nameof(Alpha.Delta), new List< Expression<Func<Alpha, object>>>{ p => p.DeltaTwo } },
+				};
 
-			// Act
-			_classUnderTest.RemovePropertyMappings(null, mappings);
+				// Act
+				_classUnderTest.RemovePropertyMappings(null, mappings);
+			});
 		}
 
 		[TestMethod]
