@@ -239,6 +239,94 @@ namespace Eshava.Test.Core.Validation
 			result.ValidationErrors.Should().HaveCount(0);
 		}
 
+		[TestMethod]
+		public void ValidationFailsBasedOnCustomValidationMethodTest()
+		{
+			// Arrange
+			var source = new Alpha
+			{
+				Gamma = "QuackFu",
+				Delta = "QuackFu",
+				DeltaTwo = "Alpha",
+				EpsilonTwo = "Alpha",
+				EpsilonThree = "Alpha",
+				EpsilonFour = "",
+				LambdaNullable = 1,
+				LambdaLongNullable = 1L,
+				MyNullableOne = 0m,
+				MyNullableTwo = 2m,
+				MyNullableSix = 1m,
+				MyNullableSeven = 123m,
+				MyNullableEight = 124m,
+				Ny = 1,
+				Omikron = Alphabet.A,
+				Pi = 2,
+				Rho = 3,
+				Sigma = new List<int> { 1 },
+				OmegaIntegerNotEqual = 1,
+				OmegaLongNotEqual = 1L,
+				ChiNotNull = Guid.NewGuid(),
+				ChiNullable = Guid.NewGuid(),
+				PsiRequired = DateTime.UtcNow,
+				PsiRequiredNullable = DateTime.UtcNow,
+				ValidationShouldFail = true
+			};
+
+			// Act
+			var result = _classUnderTest.Validate(source);
+
+			// Assert
+			result.IsValid.Should().BeFalse();
+			result.ValidationErrors.Should().HaveCount(1);
+			result.ValidationErrors[0].PropertyName.Should().Be(nameof(Alpha.ValidationShouldFail));
+		}
+
+		[TestMethod]
+		public void ValidationFailsBasedOnCustomValidationMethodInSubobjectTest()
+		{
+			// Arrange
+			var source = new Alpha
+			{
+				Gamma = "QuackFu",
+				Delta = "QuackFu",
+				DeltaTwo = "Alpha",
+				EpsilonTwo = "Alpha",
+				EpsilonThree = "Alpha",
+				EpsilonFour = "",
+				LambdaNullable = 1,
+				LambdaLongNullable = 1L,
+				MyNullableOne = 0m,
+				MyNullableTwo = 2m,
+				MyNullableSix = 1m,
+				MyNullableSeven = 123m,
+				MyNullableEight = 124m,
+				Ny = 1,
+				Omikron = Alphabet.A,
+				Pi = 2,
+				Rho = 3,
+				Sigma = new List<int> { 1 },
+				OmegaIntegerNotEqual = 1,
+				OmegaLongNotEqual = 1L,
+				ChiNotNull = Guid.NewGuid(),
+				ChiNullable = Guid.NewGuid(),
+				PsiRequired = DateTime.UtcNow,
+				PsiRequiredNullable = DateTime.UtcNow,
+				ValidationShouldFail = false,
+				Kappa = new Omega
+				{
+					Psi = "123",
+					ValidationShouldFail = true
+				}
+			};
+
+			// Act
+			var result = _classUnderTest.Validate(source);
+
+			// Assert
+			result.IsValid.Should().BeFalse();
+			result.ValidationErrors.Should().HaveCount(1);
+			result.ValidationErrors[0].PropertyName.Should().Be(nameof(Alpha.ValidationShouldFail));
+		}
 
 		[TestMethod]
 		public void ValidateCheckRequiredTest()

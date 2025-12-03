@@ -2,6 +2,7 @@
 
 namespace Eshava.Core.Validation.Attributes
 {
+	[AttributeUsage(AttributeTargets.Property)]
 	public class NotEqualsToAttribute : Attribute
 	{
 		public NotEqualsToAttribute(string propertyName)

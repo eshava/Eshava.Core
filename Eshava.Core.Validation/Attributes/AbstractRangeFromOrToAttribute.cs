@@ -2,6 +2,7 @@
 
 namespace Eshava.Core.Validation.Attributes
 {
+	[AttributeUsage(AttributeTargets.Property)]
 	public abstract class AbstractRangeFromOrToAttribute : Attribute
 	{
 		public AbstractRangeFromOrToAttribute(string propertyName, bool allowNull)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Eshava.Core.Models;
 using Eshava.Core.Validation.Attributes;
 
 namespace Eshava.Test.Core.Validation.Models
@@ -80,7 +81,7 @@ namespace Eshava.Test.Core.Validation.Models
 
 		[Range(0, 15)]
 		public long LambdaLong { get; set; }
-		
+
 		[Range(typeof(long), "0", "9223372036854775807")]
 		public long LambdaVeryLong { get; set; }
 
@@ -220,5 +221,44 @@ namespace Eshava.Test.Core.Validation.Models
 
 		[RegularExpression(OMEGAREGEXFORMAT)]
 		public string OmegaRegEx { get; set; }
+
+		public bool ValidationShouldFail { get; set; }
+
+		public IEnumerable<ValidationError> ValidateZero()
+		{
+			return [new ValidationError { PropertyName = "Fake" }];
+		}
+
+		[ValidationExecution]
+		public IEnumerable<ValidationError> ValidateOne()
+		{
+			return ValidationShouldFail
+				? [new ValidationError { PropertyName = nameof(ValidationShouldFail) }]
+				: Array.Empty<ValidationError>();
+		}
+
+		[ValidationExecution]
+		public IEnumerable<ValidationError> ValidateTwo(int someParameter)
+		{
+			return [new ValidationError { PropertyName = "Fake" }];
+		}
+
+		[ValidationExecution]
+		public IEnumerable<ValidationError> ValidateTree<T>()
+		{
+			return [new ValidationError { PropertyName = "Fake" }];
+		}
+
+		[ValidationExecution]
+		public int ValidateFour()
+		{
+			return -1;
+		}
+
+		[ValidationExecution]
+		public void ValidateFive()
+		{
+
+		}
 	}
 }

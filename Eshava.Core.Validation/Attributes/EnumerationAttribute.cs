@@ -2,6 +2,7 @@
 
 namespace Eshava.Core.Validation.Attributes
 {
+	[AttributeUsage(AttributeTargets.Property)]
 	public class EnumerationAttribute : Attribute
 	{
 		public EnumerationAttribute(bool skipValidation = false, bool invalidateZero = false)

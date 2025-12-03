@@ -108,6 +108,23 @@ namespace Eshava.Core.Validation
 						}
 					}
 				}
+
+				foreach (var methodInfo in modelType.GetMethods())
+				{
+					if (methodInfo.GetParameters().Length > 0
+						|| methodInfo.GetGenericArguments().Length > 0
+						|| methodInfo.ReturnParameter.ParameterType != typeof(IEnumerable<ValidationError>)
+						|| !methodInfo.HasAttribute<ValidationExecutionAttribute>())
+					{
+						continue;
+					}
+
+					var methodResult = methodInfo.Invoke(model, []) as IEnumerable<ValidationError>;
+					if (methodResult?.Any() ?? false)
+					{
+						results.Add(new ValidationCheckResult { ValidationErrors = methodResult.ToList() });
+					}
+				}
 			}
 
 			if (results.All(result => result.IsValid))
@@ -123,7 +140,7 @@ namespace Eshava.Core.Validation
 			var results = new List<ValidationCheckResult>();
 			var dataType = propertyInfo?.PropertyType.GetDataTypeFromIEnumerable()
 				?? propertyValue.GetType().GetDataTypeFromIEnumerable();
-			
+
 			if (dataType.IsClass && propertyValue is IEnumerable elements)
 			{
 				if (dataType == typeof(string))
