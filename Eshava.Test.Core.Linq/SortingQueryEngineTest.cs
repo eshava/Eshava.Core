@@ -30,7 +30,7 @@ namespace Eshava.Test.Core.Linq
 
 			// Assert
 			result.IsFaulty.Should().BeTrue();
-			result.Message.Should().Be("InvalidInput");
+			result.Message.Should().Be("InvalidData");
 		}
 
 		[TestMethod]
@@ -82,7 +82,7 @@ namespace Eshava.Test.Core.Linq
 
 			// Assert
 			result.IsFaulty.Should().BeTrue();
-			result.Message.Should().Be("InvalidInput");
+			result.Message.Should().Be("InvalidData");
 		}
 
 		[TestMethod]
@@ -510,7 +510,7 @@ namespace Eshava.Test.Core.Linq
 
 			// Assert
 			result.IsFaulty.Should().BeTrue();
-			result.Message.Should().Be("InvalidInput");
+			result.Message.Should().Be("InvalidData");
 		}
 
 		[TestMethod]

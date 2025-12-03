@@ -546,7 +546,7 @@ namespace Eshava.Test.Core.Linq
 		{
 			// Arrange
 			var names = new string[] { "Test A", "Test B" };
-
+			
 			Expression<Func<DataModel, bool>> sourcExpression = s => names.Contains(s.Name);
 
 			var list = new List<DomainModel>

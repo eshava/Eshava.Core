@@ -41,7 +41,7 @@ namespace Eshava.Test.Core.Linq
 
 			// Assert
 			result.IsFaulty.Should().BeTrue();
-			result.Message.Should().Be("InvalidInput");
+			result.Message.Should().Be("InvalidData");
 		}
 
 		[TestMethod]
@@ -4735,7 +4735,7 @@ namespace Eshava.Test.Core.Linq
 
 			// Assert
 			result.IsFaulty.Should().BeTrue();
-			result.Message.Should().Be("InvalidFilter");
+			result.Message.Should().Be("InvalidData");
 
 			result.ValidationErrors.Should().HaveCount(2);
 			result.ValidationErrors.First().PropertyName.Should().Be(nameof(FilterModel.Gamma));

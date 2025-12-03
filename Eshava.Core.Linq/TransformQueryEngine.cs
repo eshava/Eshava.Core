@@ -327,6 +327,11 @@ namespace Eshava.Core.Linq
 				return ProcessMethodCallExpressionToUpper<Target>(methodCallExpression, mappingExpression, parameterExpression);
 			}
 
+			if (methodCallExpression.Object is null)
+			{
+				return ProcessExpression<Target>(methodCallExpression.Arguments.First(), mappingExpression, parameterExpression);
+			}
+
 			var memberExpression = ProcessExpression<Target>(methodCallExpression.Object, mappingExpression, parameterExpression);
 			var valueExpression = ProcessExpression<Target>(methodCallExpression.Arguments.First(), mappingExpression, parameterExpression);
 
