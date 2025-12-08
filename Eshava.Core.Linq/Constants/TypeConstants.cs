@@ -7,6 +7,7 @@ namespace Eshava.Core.Linq.Constants
 	internal static class TypeConstants
 	{
 		public static readonly Type FilterField = typeof(FilterField);
+		public static readonly Type NestedFilter = typeof(NestedFilter);
 		public static readonly Type Bool = typeof(bool);
 		public static readonly Type DateTime = typeof(DateTime);
 		public static readonly Type Decimal = typeof(decimal);

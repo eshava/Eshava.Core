@@ -24,13 +24,34 @@ namespace Eshava.Test.Core.Linq.Models
 
 		public FilterField Epsilon { get; set; }
 
-		public FilterField Kappa { get; set; }
-
 		public FilterField Rho { get; set; }
 
 		public FilterField Sigma { get; set; }
 
 		[AllowedComplexFilterField("Delta")]
 		public ComplexFilterField ComplexFilterField { get; set; }
+
+		public FilterModelOmega Kappa { get; set; }
+	}
+
+	public class FilterModelOmega : NestedFilter
+	{
+		[AllowedCompareOperator(CompareOperator.Equal)]
+		[AllowedCompareOperator(CompareOperator.Contains)]
+		[AllowedCompareOperator(CompareOperator.ContainsNot)]
+
+		public FilterField Psi { get; set; }
+
+		[AllowedCompareOperator(CompareOperator.Equal)]
+		[AllowedCompareOperator(CompareOperator.Contains)]
+		[AllowedCompareOperator(CompareOperator.ContainsNot)]
+
+		public FilterField Chi { get; set; }
+
+		[AllowedCompareOperator(CompareOperator.Equal)]
+		[AllowedCompareOperator(CompareOperator.Contains)]
+		[AllowedCompareOperator(CompareOperator.ContainsNot)]
+
+		public FilterField MappingNeeded { get; set; }
 	}
 }
