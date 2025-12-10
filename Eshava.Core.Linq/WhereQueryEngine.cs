@@ -518,26 +518,6 @@ namespace Eshava.Core.Linq
 				.ToIListResponseData();
 		}
 
-		private void BuildPropertyChain(int index, string[] propertyParts, IEnumerable<PropertyInfo> propertyInfos, List<PropertyInfo> propertyInfoChain)
-		{
-			var propertyInfoPart = propertyInfos.SingleOrDefault(p => p.Name.Equals(propertyParts[index]));
-			if (propertyInfoPart is null)
-			{
-				propertyInfoChain.Clear();
-
-				return;
-			}
-
-			propertyInfoChain.Add(propertyInfoPart);
-
-			index++;
-
-			if (index < propertyParts.Length)
-			{
-				BuildPropertyChain(index, propertyParts, propertyInfoPart.PropertyType.GetProperties(), propertyInfoChain);
-			}
-		}
-
 		private ResponseData<IEnumerable<Expression<Func<T, bool>>>> GetPropertyCondition<T>(WhereQueryProperty property, IEnumerable<PropertyInfo> propertyInfos, ParameterExpression parameterExpression, WhereQueryEngineOptions options) where T : class
 		{
 			var propertyInfoChain = new List<PropertyInfo>();

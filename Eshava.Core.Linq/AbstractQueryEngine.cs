@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Eshava.Core.Linq
 {
@@ -23,6 +26,28 @@ namespace Eshava.Core.Linq
 			}
 			
 			return memberExpression;
+		}
+
+		
+
+		protected void BuildPropertyChain(int index, string[] propertyParts, IEnumerable<PropertyInfo> propertyInfos, List<PropertyInfo> propertyInfoChain)
+		{
+			var propertyInfoPart = propertyInfos.SingleOrDefault(p => p.Name.Equals(propertyParts[index]));
+			if (propertyInfoPart is null)
+			{
+				propertyInfoChain.Clear();
+
+				return;
+			}
+
+			propertyInfoChain.Add(propertyInfoPart);
+
+			index++;
+
+			if (index < propertyParts.Length)
+			{
+				BuildPropertyChain(index, propertyParts, propertyInfoPart.PropertyType.GetProperties(), propertyInfoChain);
+			}
 		}
 	}
 }

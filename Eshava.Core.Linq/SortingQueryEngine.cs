@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Eshava.Core.Extensions;
 using Eshava.Core.Linq.Constants;
 using Eshava.Core.Linq.Enums;
 using Eshava.Core.Linq.Interfaces;
@@ -43,18 +44,26 @@ namespace Eshava.Core.Linq
 			var sortFields = new List<(string Property, SortField field)>();
 			foreach (var sortField in sortings.GetType().GetProperties())
 			{
-				if (sortField.PropertyType != TypeConstants.SortField && !sortField.PropertyType.IsSubclassOf(TypeConstants.SortField))
+				if (sortField.PropertyType.IsSubclassOf(TypeConstants.NestedSort))
 				{
+					var nestedSortingValue = sortField.GetValue(sortings);
+					foreach (var nestedFilterField in sortField.PropertyType.GetProperties())
+					{
+						var nestedOrderByCondition = ConvertToOrderByCondition(sortField.Name, nestedFilterField, nestedSortingValue);
+						if (!nestedOrderByCondition.Property.IsNullOrEmpty())
+						{
+							sortFields.Add(nestedOrderByCondition);
+						}
+					}
+
 					continue;
 				}
 
-				var field = sortField.GetValue(sortings) as SortField;
-				if (field == null)
+				var orderByCondition = ConvertToOrderByCondition(null, sortField, sortings);
+				if (!orderByCondition.Property.IsNullOrEmpty())
 				{
-					continue;
+					sortFields.Add(orderByCondition);
 				}
-
-				sortFields.Add((sortField.Name, field));
 			}
 
 			var sortQueryProperties = sortFields
@@ -67,6 +76,29 @@ namespace Eshava.Core.Linq
 				.ToList();
 
 			return BuildSortConditions(sortQueryProperties, mappings);
+		}
+
+		private (string Property, SortField field) ConvertToOrderByCondition(string parentMember, PropertyInfo sortField, object sortings)
+		{
+			if (sortField.PropertyType != TypeConstants.SortField && !sortField.PropertyType.IsSubclassOf(TypeConstants.SortField))
+			{
+				return (null, null);
+			}
+
+			if (sortings is null)
+			{
+				return (null, null);
+			}
+
+			var field = sortField.GetValue(sortings) as SortField;
+			if (field == null)
+			{
+				return (null, null);
+			}
+
+			return parentMember.IsNullOrEmpty()
+				? (sortField.Name, field)
+				: ($"{parentMember}.{sortField.Name}", field);
 		}
 
 		public ResponseData<IEnumerable<OrderByCondition>> BuildSortConditions<T>(QueryParameters queryParameters, Dictionary<string, List<Expression<Func<T, object>>>> mappings = null) where T : class
@@ -203,9 +235,36 @@ namespace Eshava.Core.Linq
 
 		private MemberExpression GetProperySortCondition(string propertyName, IEnumerable<PropertyInfo> propertyInfos, ParameterExpression parameterExpression)
 		{
-			var propertyInfo = propertyInfos.SingleOrDefault(p => p.Name.Equals(propertyName));
+			var propertyInfoChain = new List<PropertyInfo>();
+			if (propertyName.Contains('.'))
+			{
+				var propertyParts = propertyName.Split('.');
+				BuildPropertyChain(0, propertyParts, propertyInfos, propertyInfoChain);
+			}
+			else
+			{
+				var propertyInfo = propertyInfos.SingleOrDefault(p => p.Name.Equals(propertyName));
+				if (propertyInfo is not null)
+				{
+					propertyInfoChain.Add(propertyInfo);
+				}
+			}
 
-			return propertyInfo == null ? null : Expression.MakeMemberAccess(parameterExpression, propertyInfo);
+			if (propertyInfoChain.Count == 0)
+			{
+				return null;
+			}
+
+			MemberExpression member = null;
+
+			foreach (var propertyInfo in propertyInfoChain)
+			{
+				member = member is null
+					? Expression.MakeMemberAccess(parameterExpression, propertyInfo)
+					: Expression.MakeMemberAccess(member, propertyInfo);
+			}
+
+			return member;
 		}
 	}
 }

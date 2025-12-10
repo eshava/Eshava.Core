@@ -524,15 +524,62 @@ namespace Eshava.Test.Core.Linq
 					SortIndex = 0,
 					SortOrder = SortOrder.Ascending
 				},
-				Sigma = new SortField
+				Epsilon = new SortField
 				{
 					SortIndex = 1,
 					SortOrder = SortOrder.Descending
 				},
-				Kappa = new SortField
+				Kappa = new OmegaSortingModel
 				{
-					SortIndex = 2,
-					SortOrder = SortOrder.Descending
+					Chi = new SortField
+					{
+						SortIndex = 2,
+						SortOrder = SortOrder.Ascending
+					}
+				}
+			};
+
+			var items = new List<Alpha>
+			{
+				new Alpha
+				{
+					Rho = 1,
+					Beta = 8,
+					Epsilon = "fff",
+					Kappa = new Omega
+					{
+						Chi = "lmn"
+					}
+				},
+				new Alpha
+				{
+					Rho = 2,
+					Beta = 9,
+					Epsilon = "aaa",
+					Kappa = new Omega
+					{
+						Chi = "ijk"
+					}
+				},
+				new Alpha
+				{
+					Rho = 3,
+					Beta = 8,
+					Epsilon = "zzz",
+					Kappa = new Omega
+					{
+						Chi = "def"
+					}
+				},
+				new Alpha
+				{
+					Rho = 4,
+					Beta = 9,
+					Epsilon = "aaa",
+					Kappa = new Omega
+					{
+						Chi = "abc"
+					}
 				}
 			};
 
@@ -551,15 +598,23 @@ namespace Eshava.Test.Core.Linq
 
 			resultItem = result.Data.Skip(1).First();
 			resultItem.SortOrder.Should().Be(SortOrder.Descending);
-			resultItem.Member.Member.Name.Should().Be(nameof(Alpha.Sigma));
+			resultItem.Member.Member.Name.Should().Be(nameof(Alpha.Epsilon));
 			resultItem.Member.Member.DeclaringType.Should().Be(typeof(Alpha));
 			resultItem.Parameter.Name.Should().Be("p");
 
 			resultItem = result.Data.Skip(2).First();
-			resultItem.SortOrder.Should().Be(SortOrder.Descending);
-			resultItem.Member.Member.Name.Should().Be(nameof(Alpha.Kappa));
-			resultItem.Member.Member.DeclaringType.Should().Be(typeof(Alpha));
+			resultItem.SortOrder.Should().Be(SortOrder.Ascending);
+			resultItem.Member.Member.Name.Should().Be(nameof(Omega.Chi));
+			resultItem.Member.Member.DeclaringType.Should().Be(typeof(Omega));
+			(resultItem.Member.Expression as MemberExpression).Member.Name.Should().Be(nameof(Alpha.Kappa));
+			(resultItem.Member.Expression as MemberExpression).Member.DeclaringType.Should().Be(typeof(Alpha));
 			resultItem.Parameter.Name.Should().Be("p");
+
+			var sortingResult = _classUnderTest.ApplySorting(items.AsQueryable(), result.Data).ToList();
+			sortingResult[0].Rho.Should().Be(3);
+			sortingResult[1].Rho.Should().Be(1);
+			sortingResult[2].Rho.Should().Be(4);
+			sortingResult[3].Rho.Should().Be(2);
 		}
 
 		[TestMethod]
