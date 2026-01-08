@@ -443,7 +443,7 @@ namespace Eshava.Test.Core.Logging
 			logForInsert.Properties[nameof(Alpha.Delta)].Type.Should().Be(FieldValueType.String);
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(nameof(Alpha.Beta), 123, "123", typeof(int), FieldValueType.Integer, DisplayName = "DataType Integer")]
 		[DataRow(nameof(Alpha.Gamma), "DarkwingDuck", "DarkwingDuck", typeof(string), FieldValueType.String, DisplayName = "DataType String")]
 		[DataRow(nameof(Alpha.Delta), LogLevel.Error, "4", typeof(LogLevel), FieldValueType.Integer, DisplayName = "DataType Enum as Integer")]
@@ -648,7 +648,7 @@ namespace Eshava.Test.Core.Logging
 			log.Properties[nameof(Alpha.Ny)].Type.Should().Be(FieldValueType.ByteArray);
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow("123", 123, FieldValueType.Integer, typeof(int), DisplayName = "DataType Integer")]
 		[DataRow("DarkwingDuck", "DarkwingDuck", FieldValueType.String, typeof(string), DisplayName = "DataType String")]
 		[DataRow("10", 10L, FieldValueType.Long, typeof(long), DisplayName = "DataType Long")]

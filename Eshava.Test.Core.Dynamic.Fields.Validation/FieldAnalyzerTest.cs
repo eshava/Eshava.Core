@@ -20,7 +20,7 @@ namespace Eshava.Test.Core.Dynamic.Fields.Validation
 			_classUnderTest = new FieldAnalyzer<DynamicFieldDefinition, DynamicFieldAssignment, DynamicFieldValue, string, int>();
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(FieldType.NumberInteger, nameof(DynamicFieldValue.ValueInteger), typeof(int), 1)]
 		[DataRow(FieldType.ComboBoxInteger, nameof(DynamicFieldValue.ValueInteger), typeof(int), 2)]
 		[DataRow(FieldType.Text, nameof(DynamicFieldValue.ValueString), typeof(string), "Launchpad McQuack")]

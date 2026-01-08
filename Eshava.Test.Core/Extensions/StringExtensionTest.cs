@@ -157,7 +157,7 @@ namespace Eshava.Test.Core.Extensions
 			result.Should().Be(source);
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(null, false)]
 		[DataRow("", false)]
 		[DataRow("DarkwingDuck", false)]
@@ -177,7 +177,7 @@ namespace Eshava.Test.Core.Extensions
 			value.ToBoolean().Should().Be(expectedValue);
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(null, true)]
 		[DataRow("", true)]
 		[DataRow("DarkwingDuck", false)]

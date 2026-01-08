@@ -1599,7 +1599,7 @@ namespace Eshava.Test.Core.Validation
 		}
 
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow("Darkwing Duck", false, DisplayName = "Invalid url (1)")]
 		[DataRow("http://www.eshava", false, DisplayName = "Invalid url (2)")]
 		[DataRow("http://www.esh@ava.de", false, DisplayName = "Invalid url (2)")]
@@ -1662,7 +1662,7 @@ namespace Eshava.Test.Core.Validation
 			}
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow("Darkwing Duck", false, DisplayName = "Invalid mail address (1)")]
 		[DataRow("Darkwing.Duck", false, DisplayName = "Invalid mail address (2)")]
 		[DataRow("Darkwing.Duck@", false, DisplayName = "Invalid mail address (3)")]
@@ -1670,6 +1670,15 @@ namespace Eshava.Test.Core.Validation
 		[DataRow("Darkwing.Duck@eshava.", false, DisplayName = "Invalid mail address (5)")]
 		[DataRow("Darkwing.Duck@eshava.de", true, DisplayName = "Valid mail address")]
 		[DataRow("@eshava.de", false, DisplayName = "Invalid mail address (6)")]
+		[DataRow("Duck___@eshava.de", true, DisplayName = "Valid mail address with underscores")]
+		[DataRow("Darkwing:Duck@eshava.de", false, DisplayName = "Invalid mail address (7)")]
+		[DataRow("Darkwing;Duck@eshava.de", false, DisplayName = "Invalid mail address (8)")]
+		[DataRow("Darkwing)Duck@eshava.de", false, DisplayName = "Invalid mail address (9)")]
+		[DataRow("Darkwing(Duck@eshava.de", false, DisplayName = "Invalid mail address (10)")]
+		[DataRow("Darkwing]Duck@eshava.de", false, DisplayName = "Invalid mail address (11)")]
+		[DataRow("Darkwing[Duck@eshava.de", false, DisplayName = "Invalid mail address (12)")]
+		[DataRow("Darkwing Duck@eshava.de", false, DisplayName = "Invalid mail address (13)")]
+		[DataRow("Darkwing.Duck@esha_va.de", false, DisplayName = "Invalid mail address (14)")]
 		public void ValidateMailAddressTest(string mailAddress, bool isValid)
 		{
 			// Arrange
@@ -1719,7 +1728,7 @@ namespace Eshava.Test.Core.Validation
 			}
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow("a-b1-c2", true, DisplayName = "Valid value for regular expression (1)")]
 		[DataRow("a-B-2", true, DisplayName = "Valid value for regular expression (2)")]
 		[DataRow("a--c", false, DisplayName = "Invalid value for regular expression")]

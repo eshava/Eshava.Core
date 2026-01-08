@@ -24,7 +24,7 @@ namespace Eshava.Test.Core.Dynamic.Fields.Validation
 			_classUnderTest = new FieldValidationEngine<DynamicFieldDefinition, DynamicFieldAssignment, DynamicFieldValue, string, int>();
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(FieldType.NumberInteger, FieldConfigurationType.Required, nameof(DynamicFieldValue.ValueInteger), 1, true)]
 		[DataRow(FieldType.NumberInteger, FieldConfigurationType.Required, nameof(DynamicFieldValue.ValueInteger), null, false)]
 		[DataRow(FieldType.ComboBoxInteger, FieldConfigurationType.Required, nameof(DynamicFieldValue.ValueInteger), 1, true)]
@@ -179,7 +179,7 @@ namespace Eshava.Test.Core.Dynamic.Fields.Validation
 			result.ValidationErrors.Any(error => error.PropertyName == nameof(FieldType.ComboxBoxGuid) + "Value").Should().BeTrue();
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(FieldType.Text, FieldConfigurationType.Email, 0, "darkwing.duck@hero.io", true)]
 		[DataRow(FieldType.Text, FieldConfigurationType.Email, 0, "Darkwing Duck", false)]
 		[DataRow(FieldType.Text, FieldConfigurationType.Url, 0, "darkwing.duck.io", true)]
@@ -228,7 +228,7 @@ namespace Eshava.Test.Core.Dynamic.Fields.Validation
 			result.IsValid.Should().Be(expectedResult);
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(FieldType.NumberInteger, FieldConfigurationType.DecimalPlaces, nameof(DynamicFieldValue.ValueInteger), 1, true)]
 		[DataRow(FieldType.NumberInteger, FieldConfigurationType.DecimalPlaces, nameof(DynamicFieldValue.ValueInteger), null, true)]
 		[DataRow(FieldType.ComboBoxInteger, FieldConfigurationType.DecimalPlaces, nameof(DynamicFieldValue.ValueInteger), 1, true)]
@@ -335,7 +335,7 @@ namespace Eshava.Test.Core.Dynamic.Fields.Validation
 			result.ValidationErrors.Any(error => error.PropertyName == fieldTwo.Id).Should().BeTrue();
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(FieldType.NumberInteger, nameof(DynamicFieldValue.ValueInteger), nameof(DynamicFieldConfiguration.ValueInteger), 3, 7, 1, false)]
 		[DataRow(FieldType.NumberInteger, nameof(DynamicFieldValue.ValueInteger), nameof(DynamicFieldConfiguration.ValueInteger), 3, 7, 5, true)]
 		[DataRow(FieldType.NumberInteger, nameof(DynamicFieldValue.ValueInteger), nameof(DynamicFieldConfiguration.ValueInteger), 3, 7, 10, false)]
@@ -477,7 +477,7 @@ namespace Eshava.Test.Core.Dynamic.Fields.Validation
 			result.ValidationErrors.Any(error => error.PropertyName == fieldThree.Id).Should().BeTrue();
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(FieldType.NumberInteger, FieldType.ComboBoxInteger, nameof(DynamicFieldValue.ValueInteger), nameof(DynamicFieldValue.ValueInteger), 2, 2, true)]
 		[DataRow(FieldType.NumberInteger, FieldType.ComboBoxInteger, nameof(DynamicFieldValue.ValueInteger), nameof(DynamicFieldValue.ValueInteger), 1, 5, true)]
 		[DataRow(FieldType.NumberInteger, FieldType.ComboBoxInteger, nameof(DynamicFieldValue.ValueInteger), nameof(DynamicFieldValue.ValueInteger), 5, 1, false)]
@@ -533,7 +533,7 @@ namespace Eshava.Test.Core.Dynamic.Fields.Validation
 			result.IsValid.Should().Be(expectedResult);
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(FieldType.NumberInteger, nameof(Omega.Stigma), nameof(DynamicFieldValue.ValueInteger), 2, 2, true)]
 		[DataRow(FieldType.NumberInteger, nameof(Omega.Stigma), nameof(DynamicFieldValue.ValueInteger), 2, 5, true)]
 		[DataRow(FieldType.NumberInteger, nameof(Omega.Stigma), nameof(DynamicFieldValue.ValueInteger), 5, 1, false)]
@@ -582,7 +582,7 @@ namespace Eshava.Test.Core.Dynamic.Fields.Validation
 			result.IsValid.Should().Be(expectedResult);
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(FieldType.NumberInteger, FieldType.NumberInteger, FieldType.NumberInteger, nameof(DynamicFieldValue.ValueInteger), nameof(DynamicFieldValue.ValueInteger), nameof(DynamicFieldValue.ValueInteger), 2, 2, 2, false, true)]
 		[DataRow(FieldType.NumberInteger, FieldType.NumberInteger, FieldType.NumberInteger, nameof(DynamicFieldValue.ValueInteger), nameof(DynamicFieldValue.ValueInteger), nameof(DynamicFieldValue.ValueInteger), 3, 1, 5, false, true)]
 		[DataRow(FieldType.NumberInteger, FieldType.NumberInteger, FieldType.NumberInteger, nameof(DynamicFieldValue.ValueInteger), nameof(DynamicFieldValue.ValueInteger), nameof(DynamicFieldValue.ValueInteger), 1, 3, 5, false, false)]
@@ -1414,7 +1414,7 @@ namespace Eshava.Test.Core.Dynamic.Fields.Validation
 			result.ValidationErrors.Last().PropertyName.Should().Be(nameof(FieldType.DateTime) + "Value");
 		}
 		
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow("Darkwing Duck", "Darkwing Duck", "Darkwing Duck", "", true, true)]
 		[DataRow("Launchpad McQuack", "Darkwing Duck", "Darkwing Duck", "", true, false)]
 		[DataRow("Darkwing Duck", "Launchpad McQuack", "Darkwing Duck", "", true, false)]
@@ -1484,7 +1484,7 @@ namespace Eshava.Test.Core.Dynamic.Fields.Validation
 			result.IsValid.Should().Be(expectedResult);
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow("ValueOne", "ValueThree", true, 1)]
 		[DataRow("ValueThree", "ValueTwo", true, 1)]
 		[DataRow("ValueThree", "ValueFour", true, 2)]

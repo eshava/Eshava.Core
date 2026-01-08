@@ -23,7 +23,7 @@ namespace Eshava.Test.Core.Dynamic.Fields.Validation
 			_classUnderTest = new FieldValidationRuleEngine<DynamicFieldDefinition, DynamicFieldAssignment, DynamicFieldValue, string, int>();
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(FieldType.None)]
 		[DataRow(FieldType.DynamicCode)]
 		public void CalculateValidationRuleNoRulesTest(FieldType fieldType)
@@ -52,7 +52,7 @@ namespace Eshava.Test.Core.Dynamic.Fields.Validation
 			rules.Should().HaveCount(0);
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(FieldType.Text)]
 		[DataRow(FieldType.TextMultiline)]
 		[DataRow(FieldType.DateTime)]
@@ -90,7 +90,7 @@ namespace Eshava.Test.Core.Dynamic.Fields.Validation
 			rules.Single().Rules.Should().HaveCount(0);
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(FieldType.Text, "string", FieldConfigurationType.Required, "Required")]
 		[DataRow(FieldType.Text, "string", FieldConfigurationType.Email, "Email")]
 		[DataRow(FieldType.Text, "string", FieldConfigurationType.Url, "Url")]
@@ -227,7 +227,7 @@ namespace Eshava.Test.Core.Dynamic.Fields.Validation
 			rules.Single().Rules[2].Maximum.Should().Be(10);
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(FieldType.NumberInteger, 0)]
 		[DataRow(FieldType.NumberDecimal, 1)]
 		[DataRow(FieldType.NumberDouble, 2)]
@@ -269,7 +269,7 @@ namespace Eshava.Test.Core.Dynamic.Fields.Validation
 			rules.Single().Rules[1].Value.Should().Be(decimalPlaces);
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(FieldType.NumberInteger)]
 		[DataRow(FieldType.NumberDecimal)]
 		[DataRow(FieldType.NumberDouble)]
@@ -341,7 +341,7 @@ namespace Eshava.Test.Core.Dynamic.Fields.Validation
 			ruleTo.Rules[2].PropertyNameFromAllowNull.Should().BeTrue();
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(FieldType.NumberInteger)]
 		[DataRow(FieldType.NumberDecimal)]
 		[DataRow(FieldType.NumberDouble)]
@@ -445,7 +445,7 @@ namespace Eshava.Test.Core.Dynamic.Fields.Validation
 			rule.Rules[1].PropertyName.Should().Be("LaunchpadMcQuack");
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(FieldType.NumberInteger, nameof(DynamicFieldConfiguration.ValueInteger), 1)]
 		[DataRow(FieldType.ComboBoxInteger, nameof(DynamicFieldConfiguration.ValueInteger), 2)]
 		[DataRow(FieldType.NumberLong, nameof(DynamicFieldConfiguration.ValueLong), 3L)]

@@ -13,8 +13,7 @@ namespace Eshava.Core.Validation.Extension
 				return false;
 			}
 
-			var regex = new Regex(@"^(?("")("".+?(?<!\\)""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" +
-											@"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-\w]*[0-9a-z]*\.)+[a-z0-9][\-a-z0-9]{0,22}[a-z0-9]))$", RegexOptions.IgnoreCase);
+			var regex = new Regex(@"^(([^<>()[\]\\.,;:\s@"" ]+(\.[^<>()[\]\\.,;:\s@"" ]+)*)|("".+""))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 			var match = regex.Match(value);
 
 			return match.Success;
@@ -31,7 +30,7 @@ namespace Eshava.Core.Validation.Extension
 			{
 				value = "http://" + value;
 			}
-						
+
 			if (!Uri.TryCreate(value, UriKind.Absolute, out var outputUri) || value.Length > 2048)
 			{
 				return false;

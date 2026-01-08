@@ -25,7 +25,7 @@ namespace Eshava.Test.Core.Logging
 			_classUnderTest = new LogEngine("DarkwingDuck", "1.0.0", LogLevel.Error, _logWriterFake, ReferenceLoopHandling.Ignore);
 		}
 
-		[DataTestMethod]
+		[TestMethod]
 		[DataRow(LogLevel.Trace, false)]
 		[DataRow(LogLevel.Debug, false)]
 		[DataRow(LogLevel.Information, false)]
