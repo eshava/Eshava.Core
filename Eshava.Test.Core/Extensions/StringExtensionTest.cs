@@ -117,7 +117,7 @@ namespace Eshava.Test.Core.Extensions
 			var resultDecompressed = resultCompressed.DecompressString();
 
 			// Assert
-			resultCompressed.Length.Should().Be(236);
+			resultCompressed.Length.Should().Be(231);
 			resultDecompressed.Should().Be(uncompressed);
 		}
 

@@ -302,7 +302,7 @@ namespace Eshava.Core.Linq
 				return ProcessMethodCallExpressionAny<Target>(methodCallExpression, mappingExpression, parameterExpression);
 			}
 
-			if (method == MethodInfoConstants.CONTAINS && methodCallExpression.Arguments.Count == 2)
+			if (method == MethodInfoConstants.CONTAINS && methodCallExpression.Arguments.Count >= 2)
 			{
 				return ProcessMethodCallExpressionContainedIn<Target>(methodCallExpression, mappingExpression, parameterExpression);
 			}
@@ -341,8 +341,8 @@ namespace Eshava.Core.Linq
 		private Expression ProcessMethodCallExpressionContainedIn<Target>(MethodCallExpression methodCallExpression, IMappingExpression mappingExpression, params ParameterExpression[] parameterExpression)
 		{
 			//DisplayClass
-			var valueExpression = ProcessExpression<Target>(methodCallExpression.Arguments.First(), mappingExpression, parameterExpression);
-			var memberExpression = ProcessExpression<Target>(methodCallExpression.Arguments.Last(), mappingExpression, parameterExpression);
+			var valueExpression = ProcessExpression<Target>(methodCallExpression.Arguments[0], mappingExpression, parameterExpression);
+			var memberExpression = ProcessExpression<Target>(methodCallExpression.Arguments[1], mappingExpression, parameterExpression);
 
 			if ((valueExpression.Type.GetDataTypeFromIEnumerable().IsDataTypeNullable() && !memberExpression.Type.IsDataTypeNullable())
 				|| (!valueExpression.Type.GetDataTypeFromIEnumerable().IsDataTypeNullable() && memberExpression.Type.IsDataTypeNullable()))
@@ -356,7 +356,7 @@ namespace Eshava.Core.Linq
 		private Expression ProcessMethodCallExpressionCompareTo<Target>(MethodCallExpression methodCallExpression, IMappingExpression mappingExpression, params ParameterExpression[] parameterExpression)
 		{
 			//DisplayClass
-			var valueExpression = ProcessExpression<Target>(methodCallExpression.Arguments.First(), mappingExpression, parameterExpression);
+			var valueExpression = ProcessExpression<Target>(methodCallExpression.Arguments[0], mappingExpression, parameterExpression);
 			var memberExpression = ProcessExpression<Target>(methodCallExpression.Object, mappingExpression, parameterExpression);
 
 			valueExpression = AddValueAccessToNullableProperty(valueExpression);
