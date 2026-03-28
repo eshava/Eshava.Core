@@ -10,7 +10,6 @@ using Eshava.Core.Validation.Attributes;
 using Eshava.Core.Validation.Extension;
 using Eshava.Core.Validation.Interfaces;
 using Eshava.Core.Validation.Models;
-using Newtonsoft.Json;
 
 namespace Eshava.Core.Validation
 {
@@ -35,12 +34,12 @@ namespace Eshava.Core.Validation
 		};
 
 
-		public IEnumerable<ValidationPropertyInfo> CalculateValidationRules<T>(bool produceTreeStructure = false) where T : class
+		public IEnumerable<ValidationPropertyInfo> CalculateValidationRules<T>(bool produceTreeStructure = false, bool keepCapitalLettersTogether = false) where T : class
 		{
-			return CalculateValidationRules(typeof(T), produceTreeStructure);
+			return CalculateValidationRules(typeof(T), produceTreeStructure, keepCapitalLettersTogether);
 		}
 
-		private IEnumerable<ValidationPropertyInfo> CalculateValidationRules(Type type, bool produceTreeStructure)
+		private IEnumerable<ValidationPropertyInfo> CalculateValidationRules(Type type, bool produceTreeStructure, bool keepCapitalLettersTogether)
 		{
 			var validationProperties = new List<ValidationPropertyInfo>();
 
@@ -56,24 +55,24 @@ namespace Eshava.Core.Validation
 					var e = propertyInfo.PropertyType.GetDataTypeFromIEnumerable();
 					if (e.IsComplexDataType())
 					{
-						var validationRules = MapRules(propertyInfo, CalculateValidationRules(e, produceTreeStructure), produceTreeStructure);
+						var validationRules = MapRules(propertyInfo, CalculateValidationRules(e, produceTreeStructure, keepCapitalLettersTogether), produceTreeStructure);
 
 						TryAddValidationProperties(validationProperties, validationRules);
 					}
 					else
 					{
-						TryAddValidationProperty(validationProperties, CalculateValidationProperty(propertyInfo));
+						TryAddValidationProperty(validationProperties, CalculateValidationProperty(propertyInfo, keepCapitalLettersTogether));
 					}
 				}
 				else if (propertyInfo.PropertyType.IsComplexDataType())
 				{
-					var validationRules = MapRules(propertyInfo, CalculateValidationRules(propertyInfo.PropertyType, produceTreeStructure), produceTreeStructure);
+					var validationRules = MapRules(propertyInfo, CalculateValidationRules(propertyInfo.PropertyType, produceTreeStructure, keepCapitalLettersTogether), produceTreeStructure);
 
 					TryAddValidationProperties(validationProperties, validationRules);
 				}
 				else
 				{
-					TryAddValidationProperty(validationProperties, CalculateValidationProperty(propertyInfo));
+					TryAddValidationProperty(validationProperties, CalculateValidationProperty(propertyInfo, keepCapitalLettersTogether));
 				}
 			}
 
@@ -119,12 +118,12 @@ namespace Eshava.Core.Validation
 			}
 		}
 
-		private ValidationPropertyInfo CalculateValidationProperty(PropertyInfo propertyInfo)
+		private ValidationPropertyInfo CalculateValidationProperty(PropertyInfo propertyInfo, bool keepCapitalLettersTogether)
 		{
 			var validationProperty = new ValidationPropertyInfo
 			{
 				PropertyName = propertyInfo.Name,
-				JsonName = GetJsonPropertyName(propertyInfo),
+				JsonName = GetJsonPropertyName(propertyInfo, keepCapitalLettersTogether),
 				Rules = new List<ValidationRule>()
 			};
 
@@ -146,14 +145,21 @@ namespace Eshava.Core.Validation
 			return validationProperty;
 		}
 
-		private string GetJsonPropertyName(PropertyInfo propertyInfo)
+		private string GetJsonPropertyName(PropertyInfo propertyInfo, bool keepCapitalLettersTogether)
 		{
-			if (Attribute.GetCustomAttribute(propertyInfo, typeof(JsonPropertyAttribute)) is JsonPropertyAttribute attJsonProperty)
+			if (Attribute.GetCustomAttribute(propertyInfo, typeof(Newtonsoft.Json.JsonPropertyAttribute)) is Newtonsoft.Json.JsonPropertyAttribute newtonsoftJsonAttJsonProperty)
 			{
-				return attJsonProperty.PropertyName;
+				return newtonsoftJsonAttJsonProperty.PropertyName;
 			}
 
-			return propertyInfo.Name.FormatToJsonPropertyName();
+#if NET8_0_OR_GREATER
+			if (Attribute.GetCustomAttribute(propertyInfo, typeof(System.Text.Json.Serialization.JsonPropertyNameAttribute)) is System.Text.Json.Serialization.JsonPropertyNameAttribute stjAttJsonProperty)
+			{
+				return stjAttJsonProperty.Name;
+			}
+#endif
+
+			return propertyInfo.Name.FormatToJsonPropertyName(keepCapitalLettersTogether);
 		}
 
 		private void SetDataType(PropertyInfo propertyInfo, ValidationPropertyInfo validationProperty)
@@ -166,39 +172,39 @@ namespace Eshava.Core.Validation
 				{
 					case DataType.Password:
 						SetDataTypeAndRule(validationProperty, "string", "Password");
-						
+
 						break;
 					case DataType.DateTime:
 						SetDataTypeAndRule(validationProperty, "dateTime");
-						
+
 						break;
 					case DataType.Date:
 						SetDataTypeAndRule(validationProperty, "date");
-						
+
 						break;
 					case DataType.Time:
 						SetDataTypeAndRule(validationProperty, "time");
-						
+
 						break;
 					case DataType.MultilineText:
 						SetDataTypeAndRule(validationProperty, "multiline");
-						
+
 						break;
 					case DataType.EmailAddress:
 						SetDataTypeAndRule(validationProperty, "string", "Email");
-						
+
 						break;
 					case DataType.Url:
 						SetDataTypeAndRule(validationProperty, "string", "Url");
-						
+
 						break;
 					case DataType.Custom when propertyInfo.PropertyType.IsGuid():
 						SetDataTypeAndRule(validationProperty, "string", "Guid");
-						
+
 						break;
 					default:
 						exit = false;
-						
+
 						break;
 				}
 

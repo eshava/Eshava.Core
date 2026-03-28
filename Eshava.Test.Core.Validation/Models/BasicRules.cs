@@ -9,9 +9,15 @@ namespace Eshava.Test.Core.Validation.Models
 		[Required]
 		public string CamelCaseName { get; set; }
 
+		[Required]
+		public string CAPITALLetters { get; set; }
+
 		[SpecialValidation]
 		[JsonProperty("itsNotJustAnotherProperty")]
 		public string JustAnotherProperty { get; set; }
+
+		[System.Text.Json.Serialization.JsonPropertyName("itsNotTheNextProperty")]
+		public string NextProperty { get; set; }
 
 		[ValidationIgnore]
 		public string IgnoreMe { get; set; }

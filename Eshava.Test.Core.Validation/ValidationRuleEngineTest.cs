@@ -21,13 +21,15 @@ namespace Eshava.Test.Core.Validation
 		public void CalculateValidationRulesBasicTest()
 		{
 			// Act
-			var rules = _classUnderTest.CalculateValidationRules<BasicRules>();
+			var rules = _classUnderTest.CalculateValidationRules<BasicRules>(keepCapitalLettersTogether: true);
 
 			// Assert
-			rules.Should().HaveCount(2);
+			rules.Should().HaveCount(4);
 
 			var one = rules.Single(r => r.PropertyName == nameof(BasicRules.CamelCaseName));
 			var two = rules.Single(r => r.PropertyName == nameof(BasicRules.JustAnotherProperty));
+			var three = rules.Single(r => r.PropertyName == nameof(BasicRules.CAPITALLetters));
+			var four = rules.Single(r => r.PropertyName == nameof(BasicRules.NextProperty));
 
 			one.JsonName.Should().Be("camelCaseName");
 			one.IsDynamicField.Should().BeFalse();
@@ -38,6 +40,15 @@ namespace Eshava.Test.Core.Validation
 			two.IsDynamicField.Should().BeFalse();
 			two.Rules.Should().HaveCount(1);
 			two.Rules.Single().Rule.Should().Be("Custom");
+
+			three.JsonName.Should().Be("capitalLetters");
+			three.IsDynamicField.Should().BeFalse();
+			three.Rules.Should().HaveCount(1);
+			three.Rules.Single().Rule.Should().Be("Required");
+
+			four.JsonName.Should().Be("itsNotTheNextProperty");
+			four.IsDynamicField.Should().BeFalse();
+			four.Rules.Should().HaveCount(0);
 		}
 
 		[TestMethod]
@@ -259,7 +270,7 @@ namespace Eshava.Test.Core.Validation
 			var rules = _classUnderTest.CalculateValidationRules<ComplexData>();
 
 			// Assert
-			rules.Should().HaveCount(10);
+			rules.Should().HaveCount(12);
 
 			var alpha = rules.Single(r => r.PropertyName == nameof(ComplexData.Alpha));
 			alpha.DataType.Should().Be("string");
@@ -272,6 +283,8 @@ namespace Eshava.Test.Core.Validation
 
 			var camelCaseNameProperties = rules.Where(r => r.PropertyName == nameof(BasicRules.CamelCaseName));
 			var justAnotherPropertyProperties = rules.Where(r => r.PropertyName == nameof(BasicRules.JustAnotherProperty));
+			var nextPropertyProperties = rules.Where(r => r.PropertyName == nameof(BasicRules.NextProperty));
+			var capitalLettersProperties = rules.Where(r => r.PropertyName == nameof(BasicRules.CAPITALLetters));
 
 			camelCaseNameProperties.Should().HaveCount(1);
 			camelCaseNameProperties.Single().DataType.Should().Be("string");
@@ -282,6 +295,15 @@ namespace Eshava.Test.Core.Validation
 			justAnotherPropertyProperties.Single().DataType.Should().Be("string");
 			justAnotherPropertyProperties.Single().Rules.Should().HaveCount(1);
 			justAnotherPropertyProperties.Single().Rules.Single().Rule.Should().Be("Custom");
+
+			nextPropertyProperties.Should().HaveCount(1);
+			nextPropertyProperties.Single().DataType.Should().Be("string");
+			nextPropertyProperties.Single().Rules.Should().HaveCount(0);
+
+			capitalLettersProperties.Should().HaveCount(1);
+			capitalLettersProperties.Single().DataType.Should().Be("string");
+			capitalLettersProperties.Single().Rules.Should().HaveCount(1);
+			capitalLettersProperties.Single().Rules.Single().Rule.Should().Be("Required");
 
 			var epsilon = rules.Single(r => r.PropertyName == nameof(ComplexData.Epsilon));
 			epsilon.DataType.Should().Be("string");

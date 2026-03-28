@@ -50,9 +50,31 @@ namespace Eshava.Core.Validation.Extension
 				&& outputUri.Host.Length > outputUri.Host.LastIndexOf(".", StringComparison.Ordinal) + 1;
 		}
 
-		public static string FormatToJsonPropertyName(this string propertyName)
+		public static string FormatToJsonPropertyName(this string propertyName, bool keepCapitalLettersTogether)
 		{
-			return propertyName.ToLower()[0] + propertyName.Substring(1);
+			if (!keepCapitalLettersTogether)
+			{
+				return propertyName.ToLower()[0] + propertyName.Substring(1);
+			}
+
+			var chars = propertyName.ToCharArray();
+			for (var i = 0; i < chars.Length; i++)
+			{
+				if (i == 1 && !Char.IsUpper(chars[i]))
+				{
+					break;
+				}
+
+				var hasNext = (i + 1 < chars.Length);
+				if (i > 0 && hasNext && !Char.IsUpper(chars[i + 1]))
+				{
+					break;
+				}
+
+				chars[i] = Char.ToLowerInvariant(chars[i]);
+			}
+
+			return new string(chars);
 		}
 	}
 }

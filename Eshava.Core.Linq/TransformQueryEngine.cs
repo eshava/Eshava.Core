@@ -329,11 +329,11 @@ namespace Eshava.Core.Linq
 
 			if (methodCallExpression.Object is null)
 			{
-				return ProcessExpression<Target>(methodCallExpression.Arguments.First(), mappingExpression, parameterExpression);
+				return ProcessExpression<Target>(methodCallExpression.Arguments[0], mappingExpression, parameterExpression);
 			}
 
 			var memberExpression = ProcessExpression<Target>(methodCallExpression.Object, mappingExpression, parameterExpression);
-			var valueExpression = ProcessExpression<Target>(methodCallExpression.Arguments.First(), mappingExpression, parameterExpression);
+			var valueExpression = ProcessExpression<Target>(methodCallExpression.Arguments[0], mappingExpression, parameterExpression);
 
 			return Expression.Call(memberExpression, methodCallExpression.Method, valueExpression);
 		}
@@ -384,7 +384,7 @@ namespace Eshava.Core.Linq
 		private Expression ProcessMethodCallExpressionParse<Target>(MethodCallExpression methodCallExpression, IMappingExpression mappingExpression, params ParameterExpression[] parameterExpression)
 		{
 			//DisplayClass
-			var valueExpression = ProcessExpression<Target>(methodCallExpression.Arguments.First(), mappingExpression, parameterExpression) as ConstantExpression;
+			var valueExpression = ProcessExpression<Target>(methodCallExpression.Arguments[0], mappingExpression, parameterExpression) as ConstantExpression;
 			object parsedValue;
 
 			if (methodCallExpression.Type == TypeConstants.Guid)
@@ -402,7 +402,7 @@ namespace Eshava.Core.Linq
 		private Expression ProcessMethodCallExpressionAny<Target>(MethodCallExpression methodCallExpression, IMappingExpression mappingExpression, params ParameterExpression[] parameterExpression)
 		{
 			// Display Class
-			var memberExpression = methodCallExpression.Arguments.First() as MemberExpression;
+			var memberExpression = methodCallExpression.Arguments[0] as MemberExpression;
 			var constantExpression = memberExpression.Expression as ConstantExpression;
 
 			var innerType = memberExpression.Type.GetDataTypeFromIEnumerable();
