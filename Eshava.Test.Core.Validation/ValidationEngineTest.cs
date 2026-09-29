@@ -1909,5 +1909,69 @@ namespace Eshava.Test.Core.Validation
 				&& error.PropertyName == nameof(Alpha.MyNullableEight))
 			.Should().BeTrue();
 		}
+
+		[TestMethod]
+		public void ValidateNumberRangeAtTypeLimitsValidValuesTest()
+		{
+			// Arrange
+			var source = new RangeLimitData
+			{
+				Alpha = 1L,
+				AlphaNullable = Int64.MaxValue,
+				Beta = Int64.MinValue,
+				Gamma = Int64.MaxValue,
+				Delta = Int32.MaxValue,
+				Epsilon = Int32.MinValue
+			};
+
+			// Act
+			var result = _classUnderTest.Validate(source);
+
+			// Assert
+			result.IsValid.Should().BeTrue();
+			result.ValidationErrors.Should().BeEmpty();
+		}
+
+		[TestMethod]
+		public void ValidateNumberRangeAtTypeLimitsInvalidValuesTest()
+		{
+			// Arrange
+			var source = new RangeLimitData
+			{
+				Alpha = 0L,
+				AlphaNullable = 0L,
+				Beta = 0L,
+				Gamma = 0L,
+				Delta = 0,
+				Epsilon = 0
+			};
+
+			// Act
+			var result = _classUnderTest.Validate(source);
+
+			// Assert
+			result.IsValid.Should().BeFalse();
+			result.ValidationErrors.Should().HaveCount(6);
+
+			foreach (var propertyName in new[] { nameof(RangeLimitData.Alpha), nameof(RangeLimitData.AlphaNullable), nameof(RangeLimitData.Beta), nameof(RangeLimitData.Gamma) })
+			{
+				result.ValidationErrors.Any(error =>
+					error.MethodType == ValidationMethodType.RangeHardCoded.ToString()
+					&& error.ErrorType == ValidationErrorType.DataTypeLong.ToString()
+					&& error.PropertyName == propertyName
+					&& error.Value?.ToString() == "0")
+				.Should().BeTrue();
+			}
+
+			foreach (var propertyName in new[] { nameof(RangeLimitData.Delta), nameof(RangeLimitData.Epsilon) })
+			{
+				result.ValidationErrors.Any(error =>
+					error.MethodType == ValidationMethodType.RangeHardCoded.ToString()
+					&& error.ErrorType == ValidationErrorType.DataTypeInteger.ToString()
+					&& error.PropertyName == propertyName
+					&& error.Value?.ToString() == "0")
+				.Should().BeTrue();
+			}
+		}
 	}
 }

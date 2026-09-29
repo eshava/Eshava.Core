@@ -43,8 +43,8 @@ namespace Eshava.Core.Validation.ValidationMethods
 
 		private static ValidationCheckResult CheckRangeInteger(ValidationCheckParameters parameters, RangeAttribute range)
 		{
-			var maximum = Convert.ToInt32(range.Maximum);
-			var minimum = Convert.ToInt32(range.Minimum);
+			var maximum = ToInt32Clamped(range.Maximum);
+			var minimum = ToInt32Clamped(range.Minimum);
 			var valueInteger = (int)parameters.PropertyValue;
 
 			if (valueInteger < minimum || valueInteger > maximum)
@@ -57,8 +57,8 @@ namespace Eshava.Core.Validation.ValidationMethods
 
 		private static ValidationCheckResult CheckRangeLong(ValidationCheckParameters parameters, RangeAttribute range)
 		{
-			var maximum = Convert.ToInt64(range.Maximum);
-			var minimum = Convert.ToInt64(range.Minimum);
+			var maximum = ToInt64Clamped(range.Maximum);
+			var minimum = ToInt64Clamped(range.Minimum);
 			var valueLong = (long)parameters.PropertyValue;
 
 			if (valueLong < minimum || valueLong > maximum)
@@ -109,6 +109,53 @@ namespace Eshava.Core.Validation.ValidationMethods
 			}
 
 			return new ValidationCheckResult();
+		}
+
+		/// <summary>
+		/// Converts a range bound to <see cref="int"/>, clamping values beyond the limits of the type.
+		/// </summary>
+		private static int ToInt32Clamped(object bound)
+		{
+			var boundLong = ToInt64Clamped(bound);
+
+			if (boundLong >= Int32.MaxValue)
+			{
+				return Int32.MaxValue;
+			}
+
+			if (boundLong <= Int32.MinValue)
+			{
+				return Int32.MinValue;
+			}
+
+			return (int)boundLong;
+		}
+
+		/// <summary>
+		/// Converts a range bound to <see cref="long"/>, clamping values beyond the limits of the type.
+		/// </summary>
+		/// <remarks>
+		/// <see cref="RangeAttribute(double, double)"/> stores its bounds as double, and <see cref="Int64.MaxValue"/>
+		/// rounds up to 2^63 on the way, which no longer fits into a long.
+		/// </remarks>
+		private static long ToInt64Clamped(object bound)
+		{
+			if (bound is double || bound is float)
+			{
+				var boundDouble = Convert.ToDouble(bound, CultureInfo.InvariantCulture);
+
+				if (boundDouble >= Int64.MaxValue)
+				{
+					return Int64.MaxValue;
+				}
+
+				if (boundDouble <= Int64.MinValue)
+				{
+					return Int64.MinValue;
+				}
+			}
+
+			return Convert.ToInt64(bound);
 		}
 
 		private static ValidationCheckResult GetErrorResult(ValidationErrorType errorType, string propertyName, string @value)
