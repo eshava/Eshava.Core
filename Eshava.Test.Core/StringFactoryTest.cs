@@ -108,6 +108,66 @@ namespace Eshava.Test.Core
 		}
 
 		[TestMethod]
+		public void GenerateRandomStringProducesEveryAlphanumericCharacterTest()
+		{
+			// Arrange
+			var expected = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+			// Act
+			var result = StringFactory.GenerateRandomString(20000);
+
+			// Assert
+			result.Distinct().OrderBy(c => c).Should().Equal(expected);
+		}
+
+		[TestMethod]
+		public void GenerateRandomStringOnlyNumbersProducesEveryDigitTest()
+		{
+			// Arrange
+			var options = new RandomStringOptions
+			{
+				IncludeNumbers = true
+			};
+
+			// Act
+			var result = StringFactory.GenerateRandomString(2000, options);
+
+			// Assert
+			result.Distinct().OrderBy(c => c).Should().Equal("0123456789");
+		}
+
+		[TestMethod]
+		public void GenerateRandomStringAllCharacterTypesProduceEveryPrintableCharacterTest()
+		{
+			// Arrange
+			var expected = Enumerable.Range(33, 94).Select(sign => (char)sign);
+			var options = new RandomStringOptions
+			{
+				IncludeNumbers = true,
+				IncludeUppercase = true,
+				IncludeLowercase = true,
+				IncludeSpecialCharacter = true
+			};
+
+			// Act
+			var result = StringFactory.GenerateRandomString(30000, options);
+
+			// Assert
+			result.Distinct().OrderBy(c => c).Should().Equal(expected);
+		}
+
+		[TestMethod]
+		public void GenerateRandomStringReturnsDifferentValuesTest()
+		{
+			// Act
+			var first = StringFactory.GenerateRandomString(50);
+			var second = StringFactory.GenerateRandomString(50);
+
+			// Assert
+			first.Should().NotBe(second);
+		}
+
+		[TestMethod]
 		public void GenerateRandomStringNoCharactersEnabledTest()
 		{
 			Assert.Throws<NotSupportedException>(() =>

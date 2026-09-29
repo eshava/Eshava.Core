@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using Eshava.Core.Models;
 
@@ -18,7 +18,7 @@ namespace Eshava.Core
 		private static readonly (int Min, int Max) _rangeSpecialCharacters4 = (123, 126);
 
 		/// <summary>
-		/// Generate a random string of specified length
+		/// Generate a random string of specified length, drawn from a cryptographic random number generator
 		/// </summary>
 		/// <param name="numberOfSigns">Length of the string</param>
 		/// <returns>random string</returns>
@@ -28,7 +28,7 @@ namespace Eshava.Core
 		}
 
 		/// <summary>
-		/// Generate a random string of specified length
+		/// Generate a random string of specified length, drawn from a cryptographic random number generator
 		/// </summary>
 		/// <param name="numberOfSigns">Length of the string</param>
 		/// <param name="options"></param>
@@ -68,6 +68,15 @@ namespace Eshava.Core
 			return GenerateRandomString(numberOfSigns, ranges);
 		}
 
+		/// <summary>
+		/// Draws every character from a cryptographic random number generator, so the result is suitable
+		/// for passwords, secrets and tokens.
+		/// </summary>
+		/// <remarks>
+		/// Each random byte is mapped onto the alphabet by rejection sampling: bytes at or above the
+		/// largest multiple of the alphabet length are discarded, so every character of every enabled
+		/// range, including the last one, is equally likely.
+		/// </remarks>
 		private static string GenerateRandomString(int numberOfSigns, List<(int Min, int Max)> ranges)
 		{
 			if (numberOfSigns <= 0)
@@ -75,22 +84,36 @@ namespace Eshava.Core
 				throw new NotSupportedException(nameof(numberOfSigns) + ": A number greater than zero is expected.");
 			}
 
-			var text = new StringBuilder();
-			var random = new Random();
+			var alphabet = ranges
+				.SelectMany(range => Enumerable.Range(range.Min, range.Max - range.Min + 1))
+				.Select(sign => (char)sign)
+				.ToArray();
 
-			var min = ranges.Min(t => t.Min);
-			var max = ranges.Max(t => t.Max);
+			var limit = 256 - (256 % alphabet.Length);
+			var text = new StringBuilder(numberOfSigns);
+			var buffer = new byte[numberOfSigns * 2];
 
-			for (var index = 0; index < numberOfSigns; index++)
+			using (var generator = RandomNumberGenerator.Create())
 			{
-				int sign;
-
-				do
+				while (text.Length < numberOfSigns)
 				{
-					sign = (random.Next(min, Int32.MaxValue) % (max - min)) + min;
-				} while (ranges.All(t => t.Min > sign || t.Max < sign));
+					generator.GetBytes(buffer);
 
-				text.Append(Convert.ToChar((byte)sign).ToString(CultureInfo.InvariantCulture));
+					foreach (var value in buffer)
+					{
+						if (value >= limit)
+						{
+							continue;
+						}
+
+						text.Append(alphabet[value % alphabet.Length]);
+
+						if (text.Length == numberOfSigns)
+						{
+							break;
+						}
+					}
+				}
 			}
 
 			return text.ToString();
