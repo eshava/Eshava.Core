@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using Eshava.Core.Security.Cryptography.Constants;
 using Eshava.Core.Security.Cryptography.Interfaces;
 using Eshava.Core.Security.Cryptography.Models;
 
@@ -15,24 +16,24 @@ namespace Eshava.Core.Security.Cryptography
 			_settings = settings;
 		}
 
-		public string Type => "Rijndael";
+		public string Type => SymmetricCryptographyEngineConstants.RIJNDAEL;
 
 		public (byte[] IV, byte[] Key) GenerateKeys(bool overwriteInstanceKeys)
 		{
-			using (var rijndaelManaged = new RijndaelManaged())
+			using (var aes = Aes.Create())
 			{
-				Configurate(rijndaelManaged);
+				Configurate(aes);
 
-				rijndaelManaged.GenerateIV();
-				rijndaelManaged.GenerateKey();
+				aes.GenerateIV();
+				aes.GenerateKey();
 
 				if (overwriteInstanceKeys)
 				{
-					_settings.IV = rijndaelManaged.IV;
-					_settings.Key = rijndaelManaged.Key;
+					_settings.IV = aes.IV;
+					_settings.Key = aes.Key;
 				}
 
-				return (rijndaelManaged.IV, rijndaelManaged.Key);
+				return (aes.IV, aes.Key);
 			}
 		}
 
@@ -40,14 +41,14 @@ namespace Eshava.Core.Security.Cryptography
 		{
 			byte[] encryptedData;
 
-			using (var rijndaelManaged = new RijndaelManaged())
+			using (var aes = Aes.Create())
 			{
-				Configurate(rijndaelManaged);
+				Configurate(aes);
 
 				using (var inputStream = new MemoryStream(Encoding.Unicode.GetBytes(input)))
 				using (var outputStream = new MemoryStream())
 				{
-					using (var cryptStream = new CryptoStream(outputStream, rijndaelManaged.CreateEncryptor(_settings.Key, _settings.IV), CryptoStreamMode.Write))
+					using (var cryptStream = new CryptoStream(outputStream, aes.CreateEncryptor(_settings.Key, _settings.IV), CryptoStreamMode.Write))
 					{
 						var buffer = new byte[1024];
 						var read = inputStream.Read(buffer, 0, buffer.Length);
@@ -70,14 +71,14 @@ namespace Eshava.Core.Security.Cryptography
 		{
 			string output;
 
-			using (var rijndaelManaged = new RijndaelManaged())
+			using (var aes = Aes.Create())
 			{
-				Configurate(rijndaelManaged);
+				Configurate(aes);
 
 				using (var inputStream = new MemoryStream(encryptedData))
 				using (var outputStream = new MemoryStream())
 				{
-					using (var cryptStream = new CryptoStream(inputStream, rijndaelManaged.CreateDecryptor(_settings.Key, _settings.IV), CryptoStreamMode.Read))
+					using (var cryptStream = new CryptoStream(inputStream, aes.CreateDecryptor(_settings.Key, _settings.IV), CryptoStreamMode.Read))
 					{
 						var buffer = new byte[1024];
 						var read = cryptStream.Read(buffer, 0, buffer.Length);
@@ -95,11 +96,11 @@ namespace Eshava.Core.Security.Cryptography
 			return output;
 		}
 
-		private void Configurate(RijndaelManaged rijndaelManaged)
+		private void Configurate(Aes aes)
 		{
-			rijndaelManaged.Padding = _settings.PaddingMode;
-			rijndaelManaged.KeySize = _settings.KeySize;
-			rijndaelManaged.Mode = _settings.CipherMode;
+			aes.Padding = _settings.PaddingMode;
+			aes.KeySize = _settings.KeySize;
+			aes.Mode = _settings.CipherMode;
 		}
 	}
 }

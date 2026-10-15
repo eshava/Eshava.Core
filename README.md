@@ -79,7 +79,9 @@ Extension to secure data worthy of protection
 * Checksum
 	* Fletcher's checksum
 * Cryptography
+	* AES-GCM engine (symmetric, authenticated, with a key ring)
 	* Rijndael engine (symmetric)
+	* Migrating engine, reading both and writing AES-GCM
 * Hash
 	* Password engine
 

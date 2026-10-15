@@ -35,8 +35,8 @@ Tests use **MSTest** with **FluentAssertions**.
   before doing so.
 * Every change to a project needs a change in its `Eshava.Test.<Project>` counterpart.
 * **Changelogs are per project**, as `<Project>/CHANGELOG.md`, because the versions are. A change
-  that needs a new version gets its section there, newest first. So far only `Eshava.Core` and
-  `Eshava.Core.Validation` have one.
+  that needs a new version gets its section there, newest first. So far only `Eshava.Core`,
+  `Eshava.Core.Security` and `Eshava.Core.Validation` have one.
 
 ## Dependants
 

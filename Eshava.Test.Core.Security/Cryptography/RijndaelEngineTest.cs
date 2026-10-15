@@ -1,6 +1,9 @@
 ﻿using System;
+using System.IO;
 using System.Security.Cryptography;
+using System.Text;
 using Eshava.Core.Security.Cryptography;
+using Eshava.Core.Security.Cryptography.Constants;
 using Eshava.Core.Security.Cryptography.Models;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -138,5 +141,76 @@ namespace Eshava.Test.Core.Security.Cryptography
 			encrypted.Length.Should().Be(64);
 			decrypted.Should().Be(input);
 		}
+
+		[TestMethod]
+		public void TypeIsRijndaelTest()
+		{
+			// Act & Assert
+			_classUnderTest.Type.Should().Be(SymmetricCryptographyEngineConstants.RIJNDAEL);
+			_classUnderTest.Type.Should().Be("Rijndael");
+		}
+
+		[TestMethod]
+		public void ValuesOfRijndaelManagedAreReadAndReadableTest()
+		{
+			// Arrange
+			_classUnderTest.GenerateKeys(true);
+
+			for (var length = 0; length < 70; length++)
+			{
+				var input = new string('x', length) + "Quack";
+
+				// Act
+				var fromRijndaelManaged = EncryptWithRijndaelManaged(input);
+				var fromEngine = _classUnderTest.Encrypt(input);
+
+				// Assert
+				_classUnderTest.Decrypt(fromRijndaelManaged).Should().Be(input);
+				DecryptWithRijndaelManaged(fromEngine).Should().Be(input);
+			}
+		}
+
+#pragma warning disable SYSLIB0022 // the obsolete implementation is the reference the engine has to stay compatible with
+		private byte[] EncryptWithRijndaelManaged(string input)
+		{
+			using (var rijndaelManaged = CreateRijndaelManaged())
+			using (var outputStream = new MemoryStream())
+			{
+				using (var cryptStream = new CryptoStream(outputStream, rijndaelManaged.CreateEncryptor(_settings.Key, _settings.IV), CryptoStreamMode.Write))
+				{
+					var bytes = Encoding.Unicode.GetBytes(input);
+					cryptStream.Write(bytes, 0, bytes.Length);
+					cryptStream.FlushFinalBlock();
+
+					return outputStream.ToArray();
+				}
+			}
+		}
+
+		private string DecryptWithRijndaelManaged(byte[] encryptedData)
+		{
+			using (var rijndaelManaged = CreateRijndaelManaged())
+			using (var inputStream = new MemoryStream(encryptedData))
+			using (var outputStream = new MemoryStream())
+			{
+				using (var cryptStream = new CryptoStream(inputStream, rijndaelManaged.CreateDecryptor(_settings.Key, _settings.IV), CryptoStreamMode.Read))
+				{
+					cryptStream.CopyTo(outputStream);
+
+					return Encoding.Unicode.GetString(outputStream.ToArray());
+				}
+			}
+		}
+
+		private RijndaelManaged CreateRijndaelManaged()
+		{
+			return new RijndaelManaged
+			{
+				Padding = _settings.PaddingMode,
+				KeySize = _settings.KeySize,
+				Mode = _settings.CipherMode
+			};
+		}
+#pragma warning restore SYSLIB0022
 	}
 }
