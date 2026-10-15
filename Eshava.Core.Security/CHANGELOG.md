@@ -32,5 +32,11 @@ are not documented here — the Git history is the source for those.
   values written by either are read by the other; the settings and the output format are unchanged.
 * **`RijndaelEngine.Type` returns `SymmetricCryptographyEngineConstants.RIJNDAEL`**, which is the
   same string, `"Rijndael"`, as before.
+* **`PasswordAlgorithmEngine` names its algorithm and draws its salt without obsolete types.** PBKDF2
+  with HMAC-SHA1 and 1,000 iterations, as before, now stated explicitly, and the salt comes from
+  `RandomNumberGenerator` instead of `RNGCryptoServiceProvider`. **Every hash is byte for byte the
+  same**, so stored hashes keep verifying; the change only removes the warnings SYSLIB0041 and
+  SYSLIB0023 the new targets report. Those parameters are weak by today's standards — raising them
+  changes every hash and needs a format that tells old hashes from new ones.
 
 `ISymmetricCryptographyEngine` is unchanged.

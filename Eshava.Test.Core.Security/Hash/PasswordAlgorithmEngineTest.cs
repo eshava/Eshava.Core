@@ -1,4 +1,6 @@
-﻿using Eshava.Core.Security.Hash;
+﻿using System;
+using System.Security.Cryptography;
+using Eshava.Core.Security.Hash;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -75,6 +77,40 @@ namespace Eshava.Test.Core.Security.Hash
 
 			// Assert
 			resultVerify.Should().BeFalse();
+		}
+
+		[TestMethod]
+		public void HashesOfTheObsoleteConstructorStillVerifyTest()
+		{
+			// Arrange
+			var password = "Darkwing Duck";
+			var salt = new byte[256];
+			RandomNumberGenerator.Fill(salt);
+#pragma warning disable SYSLIB0041 // the implementation every stored hash was written with
+			var legacyHash = new Rfc2898DeriveBytes(password, salt, 1000).GetBytes(256);
+#pragma warning restore SYSLIB0041
+
+			// Act
+			var resultVerify = _classUnderTest.Verify(password, Convert.ToBase64String(legacyHash), Convert.ToBase64String(salt));
+
+			// Assert
+			resultVerify.Should().BeTrue();
+		}
+
+		[TestMethod]
+		public void NewHashesAreThoseOfTheObsoleteConstructorTest()
+		{
+			// Arrange
+			var password = "Darkwing Duck";
+
+			// Act
+			var resultHash = _classUnderTest.Hash(password);
+#pragma warning disable SYSLIB0041 // the implementation every stored hash was written with
+			var legacyHash = new Rfc2898DeriveBytes(password, Convert.FromBase64String(resultHash.SaltBase64), 1000).GetBytes(256);
+#pragma warning restore SYSLIB0041
+
+			// Assert
+			Convert.ToBase64String(legacyHash).Should().Be(resultHash.HashBase64);
 		}
 	}
 }
